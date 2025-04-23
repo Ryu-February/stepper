@@ -13,6 +13,5 @@ void hw_init(void)
 {
 	bsp_init();
 	
-	step_motor_left.init(&step_motor_left);
-	step_motor_right.init(&step_motor_right);
+	sm_init_all();//step motor init
 }

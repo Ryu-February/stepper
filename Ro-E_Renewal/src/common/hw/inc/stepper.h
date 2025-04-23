@@ -34,11 +34,12 @@ typedef struct StepMotor {
 } StepMotor;
 
 // 2) 함수 원형
-void SM_init   (StepMotor *m);
-void SM_slide  (StepMotor *m);
-void SM_forward(StepMotor *m);
-void SM_reverse(StepMotor *m);
-void SM_brake  (StepMotor *m);
+void sm_init   (StepMotor *m);
+void sm_slide  (StepMotor *m);
+void sm_forward(StepMotor *m);
+void sm_reverse(StepMotor *m);
+void sm_brake  (StepMotor *m);
+void sm_init_all(void);
 
 // 3) DEFINE_STEP_MOTOR 매크로 (꼭 구조체 정의 다음에!)
 #define DEFINE_STEP_MOTOR(name,            \
@@ -64,11 +65,11 @@ StepMotor name = {                     \
 	.bin2_ddr  = &b2d,                 \
 	.bin2_pin  = b2,                   \
 	/* 함수 포인터 */                  \
-	.init    = SM_init,                \
-	.slide   = SM_slide,               \
-	.forward = SM_forward,             \
-	.reverse = SM_reverse,             \
-	.brake   = SM_brake                \
+	.init    = sm_init,                \
+	.slide   = sm_slide,               \
+	.forward = sm_forward,             \
+	.reverse = sm_reverse,             \
+	.brake   = sm_brake                \
 };
 
 #endif

@@ -57,7 +57,7 @@ PORTB, DDRB, PB4    // BIN2: PB4
 /************************************************************************************/
 
 // 초기화: 모든 입력 핀 출력으로 설정
-void SM_init(StepMotor *m) {
+void sm_init(StepMotor *m) {
 	*(m->ain1_ddr) |=  (1 << m->ain1_pin);
 	*(m->ain2_ddr) |=  (1 << m->ain2_pin);
 	*(m->bin1_ddr) |=  (1 << m->bin1_pin);
@@ -65,7 +65,7 @@ void SM_init(StepMotor *m) {
 }
 
 // 슬라이드(Coast)
-void SM_slide(StepMotor *m) {
+void sm_slide(StepMotor *m) {
 	*(m->ain1_port) &= ~(1 << m->ain1_pin);
 	*(m->ain2_port) &= ~(1 << m->ain2_pin);
 	*(m->bin1_port) &= ~(1 << m->bin1_pin);
@@ -73,7 +73,7 @@ void SM_slide(StepMotor *m) {
 }
 
 // 전진(Forward)
-void SM_forward(StepMotor *m) {
+void sm_forward(StepMotor *m) {
 	*(m->ain1_port) &= ~(1 << m->ain1_pin);
 	*(m->ain2_port) |=  (1 << m->ain2_pin);
 	*(m->bin1_port) &= ~(1 << m->bin1_pin);
@@ -81,7 +81,7 @@ void SM_forward(StepMotor *m) {
 }
 
 // 후진(Reverse)
-void SM_reverse(StepMotor *m) {
+void sm_reverse(StepMotor *m) {
 	*(m->ain1_port) |=  (1 << m->ain1_pin);
 	*(m->ain2_port) &= ~(1 << m->ain2_pin);
 	*(m->bin1_port) |=  (1 << m->bin1_pin);
@@ -89,10 +89,15 @@ void SM_reverse(StepMotor *m) {
 }
 
 // 브레이크(Brake)
-void SM_brake(StepMotor *m) {
+void sm_brake(StepMotor *m) {
 	*(m->ain1_port) |=  (1 << m->ain1_pin);
 	*(m->ain2_port) |=  (1 << m->ain2_pin);
 	*(m->bin1_port) |=  (1 << m->bin1_pin);
 	*(m->bin2_port) |=  (1 << m->bin2_pin);
 }
 
+void sm_init_all(void)
+{
+	step_motor_left.init(&step_motor_left);
+	step_motor_right.init(&step_motor_right);
+}
