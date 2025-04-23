@@ -13,6 +13,13 @@
 
 #include "stepper.h"
 
+#ifdef _USE_HW_STEP
+
+extern StepMotor step_motor_left;
+extern StepMotor step_motor_right;
+
+#endif
+
 void hw_init(void);
 
 #endif /* HW_H_ */
