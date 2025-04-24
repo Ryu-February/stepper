@@ -7,6 +7,8 @@
 
 #include "ap.h"
 
+
+
 void ap_init(void)
 {
 	
@@ -16,6 +18,7 @@ void ap_main(void)
 {
 	while(1)
 	{
+		led_on(1);
 		sm_operate();
 	}
 }

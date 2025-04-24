@@ -12,6 +12,7 @@
 #include "hw_def.h"
 
 #include "stepper.h"
+#include "led.h"
 
 void hw_init(void);
 

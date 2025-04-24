@@ -13,5 +13,6 @@ void hw_init(void)
 {
 	bsp_init();
 	
+	led_init();
 	sm_init_all();//step motor init
 }
