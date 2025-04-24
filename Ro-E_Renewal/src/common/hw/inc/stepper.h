@@ -15,13 +15,23 @@
 
 #ifdef _USE_HW_STEP
 
-
 // 하프스텝(8단계) 시퀀스용 테이블
 // { AIN1, AIN2, BIN1, BIN2 }
+#ifdef _USE_STEP_HALF
 static const uint8_t STEP_TABLE[8][4] = {
 	{1,0,0,0}, {1,1,0,0}, {0,1,0,0}, {0,1,1,0},
 	{0,0,1,0}, {0,0,1,1}, {0,0,0,1}, {1,0,0,1},
 };
+
+// 풀스탭(4단계) 시퀀스용 테이블
+#else
+static const uint8_t STEP_TABLE[4][4] = {
+	{1,0,1,0},  // A+ & B+
+	{0,1,1,0},  // A- & B+
+	{0,1,0,1},  // A- & B-
+	{1,0,0,1},  // A+ & B-
+};
+#endif
 
 // 1) StepMotor 구조체 선언
 typedef struct StepMotor {

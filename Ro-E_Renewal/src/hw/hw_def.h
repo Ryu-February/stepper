@@ -13,6 +13,7 @@
 #include "bsp.h"
 
 #define _USE_HW_STEP
+#define _USE_STEP_HALF	1
 
 
 #endif /* HW_DEF_H_ */
