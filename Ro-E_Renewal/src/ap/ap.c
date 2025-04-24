@@ -16,6 +16,6 @@ void ap_main(void)
 {
 	while(1)
 	{
-		
+		sm_operate();
 	}
 }

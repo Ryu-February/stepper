@@ -15,6 +15,14 @@
 
 #ifdef _USE_HW_STEP
 
+
+// 하프스텝(8단계) 시퀀스용 테이블
+// { AIN1, AIN2, BIN1, BIN2 }
+static const uint8_t STEP_TABLE[8][4] = {
+	{1,0,0,0}, {1,1,0,0}, {0,1,0,0}, {0,1,1,0},
+	{0,0,1,0}, {0,0,1,1}, {0,0,0,1}, {1,0,0,1},
+};
+
 // 1) StepMotor 구조체 선언
 typedef struct StepMotor {
 	volatile uint8_t *ain1_port, *ain1_ddr;
@@ -26,6 +34,8 @@ typedef struct StepMotor {
 	volatile uint8_t *bin2_port, *bin2_ddr;
 	uint8_t           bin2_pin;
 
+	uint8_t step_idx;
+	
 	void (*init)(struct StepMotor*);
 	void (*slide)(struct StepMotor*);
 	void (*forward)(struct StepMotor*);
@@ -39,15 +49,18 @@ void sm_slide  (StepMotor *m);
 void sm_forward(StepMotor *m);
 void sm_reverse(StepMotor *m);
 void sm_brake  (StepMotor *m);
+
 void sm_init_all(void);
+void sm_operate(void);
 
 // 3) DEFINE_STEP_MOTOR 매크로 (꼭 구조체 정의 다음에!)
-#define DEFINE_STEP_MOTOR(name,            \
+#define DEFINE_STEP_MOTOR(name,			\
 a1p, a1d, a1,    \
 a2p, a2d, a2,    \
 b1p, b1d, b1,    \
 b2p, b2d, b2)    \
-StepMotor name = {                     \
+StepMotor name = \
+{									   \
 	/* AIN1 */                         \
 	.ain1_port = &a1p,                 \
 	.ain1_ddr  = &a1d,                 \
@@ -64,7 +77,9 @@ StepMotor name = {                     \
 	.bin2_port = &b2p,                 \
 	.bin2_ddr  = &b2d,                 \
 	.bin2_pin  = b2,                   \
-	/* 함수 포인터 */                  \
+	/*step_index*/					   \
+	.step_idx  = 0,					   \
+	/* 함수 포인터 */                   \
 	.init    = sm_init,                \
 	.slide   = sm_slide,               \
 	.forward = sm_forward,             \
