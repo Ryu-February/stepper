@@ -24,7 +24,7 @@ static const uint8_t STEP_TABLE[8][4] = {
 };
 
 // 풀스탭(4단계) 시퀀스용 테이블
-#else
+#else //_USE_STEP_FULL
 static const uint8_t STEP_TABLE[4][4] = {
 	{1,0,1,0},  // A+ & B+
 	{0,1,1,0},  // A- & B+

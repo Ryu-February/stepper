@@ -11,13 +11,27 @@
 
 #include "hw_def.h"
 
-typedef enum
-{
-	LED_RED,
-	LED_GREEN,
-	LED_BLUE,
-	LED_ALL
-}led_channel_t;
+#define LED_RED_PIN		PB1
+#define LED_GREEN_PIN	PB2
+#define LED_BLUE_PIN	PB3
+
+#define LED_RED_MASK	(1 << LED_RED_PIN)
+#define LED_GREEN_MASK	(1 << LED_GREEN_PIN)
+#define LED_BLUE_MASK	(1 << LED_BLUE_PIN)
+
+#define RGB_COLOR_RED	(1 << 0)
+#define RGB_COLOR_GREEN (1 << 1)
+#define RGB_COLOR_BLUE	(1 << 2)
+
+#define RGB_OFF			0
+#define RGB_RED			(RGB_COLOR_RED)
+#define RGB_GREEN		(RGB_COLOR_GREEN)
+#define RGB_BLUE		(RGB_COLOR_BLUE)
+#define RGB_YELLOW		(RGB_COLOR_RED | RGB_COLOR_GREEN)
+#define RGB_MAGENTA		(RGB_COLOR_RED | RGB_COLOR_BLUE)
+#define RGB_CYAN		(RGB_COLOR_GREEN | RGB_COLOR_BLUE)
+#define RGB_WHITE		(RGB_COLOR_RED | RGB_COLOR_GREEN | RGB_COLOR_BLUE)
+
 
 typedef struct 
 {
@@ -28,9 +42,10 @@ typedef struct
 	uint8_t blue_mask;
 }rgb_led_t;
 
+//extern rgb_led_t led;
+
 void led_init(void/*const rgb_led_t *led*/);
-void led_on(unsigned char ch);
-void led_off(unsigned char ch);
+void led_set_color(uint8_t rgb_color);
 
 
 #endif /* LED_H_ */

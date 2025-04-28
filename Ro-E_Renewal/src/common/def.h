@@ -19,6 +19,9 @@
 #define F_CPU 16000000UL
 #include <util/delay.h>
 
+#define ON		1
+#define OFF		0
+
 
 
 #endif /* DEF_H_ */

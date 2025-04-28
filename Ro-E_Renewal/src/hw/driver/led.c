@@ -7,50 +7,52 @@
 
 #include "led.h"
 
+static const rgb_led_t led = 
+{
+	&PORTB,
+	&DDRB,
+	LED_RED_MASK,
+	LED_GREEN_MASK,
+	LED_BLUE_MASK
+};
+
 //RGB_LED
 //R LED -> PB1
 //G LED -> PB2
 //B LED -> PB3
 
-void led_init(void/*const rgb_led_t *led*/)
+void led_init(void)
 {
-	DDRB |= (1 << PB1) | (1 << PB2) | (1 << PB3);
-	//*(led->ddr) |= (led->red_mask) | (led->green_mask) | (led->blue_mask);
+	*(led.ddr) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);
+	*(led.port) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);
 }
 
-void led_all_init(void)
+void led_set_color(uint8_t rgb_color)
 {
-	//led_init(led->)
-}
-
-void led_on(unsigned char ch)
-{
-	switch (ch)
+	if(rgb_color & RGB_COLOR_RED)
 	{
-		case 1 : 
-		{
-			PORTB &= (1 << PB1);
-			PORTB |= (1 << PB2) | (1 << PB3);
-		}
-		
-		case 2 :
-		{
-			PORTB &= (1 << PB1);
-			PORTB |= (1 << PB2) | (1 << PB3);
-		}
-		
-		case 3 :
-		{
-			PORTB &= (1 << PB1);
-			PORTB |= (1 << PB2) | (1 << PB3);
-		}
+		*(led.port) &= ~led.red_mask;
 	}
-}
-
-void led_off(unsigned char ch)
-{
-	if(ch == 1)
+	else
 	{
-		PORTB &= ~(1 << PB1);
+		*(led.port) |= led.red_mask;
+	}
+	
+	if(rgb_color & RGB_COLOR_GREEN)
+	{
+		*(led.port) &= ~led.green_mask;
+	}
+	else
+	{
+		*(led.port) |= led.green_mask;
+	}
+	
+	if(rgb_color & RGB_COLOR_BLUE)
+	{
+		*(led.port) &= ~led.blue_mask;
+	}
+	else
+	{
+		*(led.port) |= led.blue_mask;
 	}
 }
