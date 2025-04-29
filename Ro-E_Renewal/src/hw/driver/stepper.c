@@ -114,7 +114,6 @@ void sm_forward(StepMotor *m)
 {
 	apply_coils(m);
 	m->step_idx = (m->step_idx + 1) & STEP_MASK;  // 0~7 순환 | 0!3 순환
-	//_delay_us(1200); // 속도 조절
 }
 
 // 후진(Reverse)
@@ -122,7 +121,6 @@ void sm_reverse(StepMotor *m)
 {
 	 apply_coils(m);
 	 m->step_idx = (m->step_idx + STEP_MASK) & STEP_MASK;  // -1 mod 8
-	 //_delay_us(1200);
 }
 
 // 브레이크(Brake)
@@ -134,21 +132,30 @@ void sm_brake(StepMotor *m)
 	*(m->bin2_port) |=  (1 << m->bin2_pin);
 }
 
-void sm_init_all(void)
+void roe_sm_init(void)
 {
 	step_motor_left.init(&step_motor_left);
 	step_motor_right.init(&step_motor_right);
 }
 
-void sm_operate(void)
-{	
+void roe_sm_forward(void)
+{
 	step_motor_left.forward(&step_motor_left);
 	step_motor_right.forward(&step_motor_right);
 	_delay_us(1200);
 	_delay_ms(10);
-	
-	//step_motor_left.reverse(&step_motor_left);
-	//step_motor_right.reverse(&step_motor_right);
-	//_delay_us(1200);
-	//_delay_ms(10);
+}
+
+void roe_sm_backward(void)
+{
+	step_motor_left.reverse(&step_motor_left);
+	step_motor_right.reverse(&step_motor_right);
+	_delay_us(1200);
+	_delay_ms(10);
+}
+
+
+void roe_sm_operate(void)
+{
+	roe_sm_forward();
 }

@@ -13,7 +13,7 @@
 #include "bsp.h"
 
 #define _USE_HW_STEP			//STEP_MOTOR
-	#define _USE_STEP_HALF	0	//if u want to use step_full, set this value to 0.
+	#define _USE_STEP_HALF	1	//if u want to use step_full, set this value to 0.
 
 #define _USE_HW_LED				//LED
 

@@ -19,6 +19,6 @@ void ap_main(void)
 	while(1)
 	{
 		led_set_color(RGB_WHITE);
-		sm_operate();
+		roe_sm_operate();
 	}
 }

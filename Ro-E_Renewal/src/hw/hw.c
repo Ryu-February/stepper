@@ -14,5 +14,5 @@ void hw_init(void)
 	bsp_init();
 	
 	led_init();
-	sm_init_all();//step motor init
+	roe_sm_init();//Ro-E step motor init
 }

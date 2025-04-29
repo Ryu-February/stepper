@@ -66,9 +66,6 @@ void sm_forward(StepMotor *m);
 void sm_reverse(StepMotor *m);
 void sm_brake  (StepMotor *m);
 
-void sm_init_all(void);
-void sm_operate(void);
-
 // 3) DEFINE_STEP_MOTOR 매크로 (꼭 구조체 정의 다음에!)
 #define DEFINE_STEP_MOTOR(name,			\
 a1p, a1d, a1,    \
@@ -102,6 +99,11 @@ StepMotor name = \
 	.reverse = sm_reverse,             \
 	.brake   = sm_brake                \
 };
+
+void roe_sm_init(void);
+void roe_sm_forward(void);
+void roe_sm_backward(void);
+void roe_sm_operate(void);
 
 #endif
 
