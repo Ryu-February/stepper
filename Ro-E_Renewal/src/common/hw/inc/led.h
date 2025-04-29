@@ -9,7 +9,10 @@
 #ifndef LED_H_
 #define LED_H_
 
+
 #include "hw_def.h"
+
+#ifdef _USE_HW_LED
 
 #define LED_RED_PIN		PB1
 #define LED_GREEN_PIN	PB2
@@ -35,8 +38,8 @@
 
 typedef struct 
 {
-	volatile uint8_t *port;
-	volatile uint8_t *ddr;
+	volatile uint8_t *port;	//IO 레지스터(PORTB) 주소값 할당해야 해서 포인터 변수로 선언
+	volatile uint8_t *ddr;	//IO 레지스터(DDRB) 주소값 할당해야 해서 포인터 변수로 선언
 	uint8_t red_mask;
 	uint8_t green_mask;
 	uint8_t blue_mask;
@@ -47,5 +50,6 @@ typedef struct
 void led_init(void/*const rgb_led_t *led*/);
 void led_set_color(uint8_t rgb_color);
 
+#endif
 
 #endif /* LED_H_ */

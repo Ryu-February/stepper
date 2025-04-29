@@ -19,8 +19,14 @@
 // { AIN1, AIN2, BIN1, BIN2 }
 #ifdef _USE_STEP_HALF
 static const uint8_t STEP_TABLE[8][4] = {
-	{1,0,0,0}, {1,1,0,0}, {0,1,0,0}, {0,1,1,0},
-	{0,0,1,0}, {0,0,1,1}, {0,0,0,1}, {1,0,0,1},
+	{1,0,1,0}, 
+	{0,0,1,0}, 
+	{0,1,1,0}, 
+	{0,1,0,0},
+	{0,1,0,1}, 
+	{0,0,0,1}, 
+	{1,0,0,1}, 
+	{1,0,0,0},
 };
 
 // 풀스탭(4단계) 시퀀스용 테이블
@@ -35,7 +41,7 @@ static const uint8_t STEP_TABLE[4][4] = {
 
 // 1) StepMotor 구조체 선언
 typedef struct StepMotor {
-	volatile uint8_t *ain1_port, *ain1_ddr;
+	volatile uint8_t *ain1_port, *ain1_ddr;//구조체 멤버
 	uint8_t           ain1_pin;
 	volatile uint8_t *ain2_port, *ain2_ddr;
 	uint8_t           ain2_pin;

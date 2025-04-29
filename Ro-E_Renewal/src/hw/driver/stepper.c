@@ -96,8 +96,8 @@ void sm_init(StepMotor *m)
 	
 	m->step_idx = 0;
 	
-	m->forward = (m == &step_motor_left) ? sm_reverse : sm_forward;
-	m->reverse = (m == &step_motor_left) ? sm_forward : sm_reverse;
+	m->forward = (m == &step_motor_right) ? sm_reverse : sm_forward;
+	m->reverse = (m == &step_motor_right) ? sm_forward : sm_reverse;
 }
 
 // 슬라이드(Coast)
@@ -112,17 +112,17 @@ void sm_slide(StepMotor *m)
 // 전진(Forward)
 void sm_forward(StepMotor *m) 
 {
-	m->step_idx = (m->step_idx + 1) & STEP_MASK;  // 0~7 순환 | 0!3 순환
 	apply_coils(m);
-	_delay_us(500); // 속도 조절
+	m->step_idx = (m->step_idx + 1) & STEP_MASK;  // 0~7 순환 | 0!3 순환
+	//_delay_us(1200); // 속도 조절
 }
 
 // 후진(Reverse)
 void sm_reverse(StepMotor *m) 
 {
-	 m->step_idx = (m->step_idx + 7) & STEP_MASK;  // -1 mod 8
 	 apply_coils(m);
-	 _delay_us(500);
+	 m->step_idx = (m->step_idx + STEP_MASK) & STEP_MASK;  // -1 mod 8
+	 //_delay_us(1200);
 }
 
 // 브레이크(Brake)
@@ -141,22 +141,14 @@ void sm_init_all(void)
 }
 
 void sm_operate(void)
-{
-	//for(uint8_t i = 0; i < 20; i++)
-	//{
-		//step_motor_left.forward(&step_motor_left);//이게 정회전임
-		//step_motor_right.forward(&step_motor_right);	
-	//}
-	//_delay_ms(100);
-	
+{	
 	step_motor_left.forward(&step_motor_left);
 	step_motor_right.forward(&step_motor_right);
+	_delay_us(1200);
 	_delay_ms(10);
 	
-	//for(uint8_t i = 0; i < 20; i++)
-	//{
-		//step_motor_left.reverse(&step_motor_left);
-		//step_motor_right.reverse(&step_motor_right);
-	//}
-	//_delay_ms(100);
+	//step_motor_left.reverse(&step_motor_left);
+	//step_motor_right.reverse(&step_motor_right);
+	//_delay_us(1200);
+	//_delay_ms(10);
 }

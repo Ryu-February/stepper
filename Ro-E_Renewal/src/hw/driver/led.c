@@ -24,7 +24,7 @@ static const rgb_led_t led =
 void led_init(void)
 {
 	*(led.ddr) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);
-	*(led.port) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);
+	*(led.port) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);//led->pullup registor
 }
 
 void led_set_color(uint8_t rgb_color)
