@@ -17,7 +17,7 @@
 
 // 하프스텝(8단계) 시퀀스용 테이블
 // { AIN1, AIN2, BIN1, BIN2 }
-#ifdef _USE_STEP_HALF
+#if _USE_STEP_HALF
 static const uint8_t STEP_TABLE[8][4] = {
 	{1,0,1,0}, 
 	{0,0,1,0}, 
