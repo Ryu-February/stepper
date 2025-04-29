@@ -13,7 +13,15 @@
 #include "bsp.h"
 
 #define _USE_HW_STEP			//STEP_MOTOR
-	#define _USE_STEP_HALF	1	//if u want to use step_full, set this value to 0.
+// Select one stepping mode by setting _USE_STEP_MODE:
+	typedef enum
+	{
+		_STEP_MODE_HALF	 = 1,
+		_STEP_MODE_FULL  = 2,
+		_STEP_MODE_MICRO = 3
+	}StepMode_t;
+
+	#define _USE_STEP_MODE _STEP_MODE_HALF
 
 #define _USE_HW_LED				//LED
 

@@ -7,7 +7,7 @@
 
 #include "stepper.h"
 
-/*                              Motor (15BY25)                          */
+/*                            Motor(15BY25-119)                         */
 /*                          Motor driver(PN7713)                        */
 
 /************************************************************************/
@@ -40,25 +40,27 @@
 
 #ifdef _USE_HW_STEP
 
-DEFINE_STEP_MOTOR(step_motor_left,
-PORTC, DDRC, PC1,   // AIN1: PC1
-PORTC, DDRC, PC0,   // AIN2: PC0
-PORTC, DDRC, PC3,   // BIN1: PC3
-PORTC, DDRC, PC2    // BIN2: PC2
-);
+	DEFINE_STEP_MOTOR(step_motor_left,
+	PORTC, DDRC, PC1,   // AIN1: PC1
+	PORTC, DDRC, PC0,   // AIN2: PC0
+	PORTC, DDRC, PC3,   // BIN1: PC3
+	PORTC, DDRC, PC2    // BIN2: PC2
+	);
 
-DEFINE_STEP_MOTOR(step_motor_right,
-PORTC, DDRC, PC5,   // AIN1: PC5
-PORTC, DDRC, PC4,   // AIN2: PC4
-PORTB, DDRB, PB5,   // BIN1: PB5
-PORTB, DDRB, PB4    // BIN2: PB4
-);
+	DEFINE_STEP_MOTOR(step_motor_right,
+	PORTC, DDRC, PC5,   // AIN1: PC5
+	PORTC, DDRC, PC4,   // AIN2: PC4
+	PORTB, DDRB, PB5,   // BIN1: PB5
+	PORTB, DDRB, PB4    // BIN2: PB4
+	);
 
-#if _USE_STEP_HALF
-	#define STEP_MASK 0x07
-#else
-	#define STEP_MASK 0x03
-#endif
+	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
+		#define STEP_MASK 0x07
+	#elif (_USE_STEP_MODE == _STEP_MODE_FULL)
+		#define STEP_MASK 0x03
+	#elif (_USE_STEP_MODE == _STEP_MODE_MICRO)
+		#define STEP_MASK 0x0F
+	#endif
 
 #endif
 
@@ -113,14 +115,14 @@ void sm_slide(StepMotor *m)
 void sm_forward(StepMotor *m) 
 {
 	apply_coils(m);
-	m->step_idx = (m->step_idx + 1) & STEP_MASK;  // 0~7 순환 | 0!3 순환
+	m->step_idx = (m->step_idx + 1) & STEP_MASK;  // 0~7 순환(half step) | 0~3 순환(full step)
 }
 
 // 후진(Reverse)
 void sm_reverse(StepMotor *m) 
 {
 	 apply_coils(m);
-	 m->step_idx = (m->step_idx + STEP_MASK) & STEP_MASK;  // -1 mod 8
+	 m->step_idx = (m->step_idx + STEP_MASK) & STEP_MASK;  // 7 ~ 0 || 3 ~ 0
 }
 
 // 브레이크(Brake)
@@ -142,11 +144,11 @@ void roe_sm_forward(void)
 {
 	step_motor_left.forward(&step_motor_left);
 	step_motor_right.forward(&step_motor_right);
-	_delay_us(1200);
+	_delay_us(1200);//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
 	_delay_ms(10);
 }
 
-void roe_sm_backward(void)
+void roe_sm_reverse(void)
 {
 	step_motor_left.reverse(&step_motor_left);
 	step_motor_right.reverse(&step_motor_right);
