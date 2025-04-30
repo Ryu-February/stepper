@@ -6,9 +6,8 @@
  */ 
 
 #include "bsp.h"
+#include "timer.h"
 
-extern volatile uint32_t timer0_ovf_cnt;
-extern volatile uint32_t timer1_ovf_cnt;
 
 void bsp_init(void)
 {

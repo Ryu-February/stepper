@@ -7,7 +7,7 @@
 
 #include "ap.h"
 
-extern volatile uint32_t timer0_ovf_cnt;
+
 
 void ap_init(void)
 {
