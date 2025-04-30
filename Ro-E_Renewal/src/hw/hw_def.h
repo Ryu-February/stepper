@@ -24,6 +24,6 @@
 	#define _USE_STEP_MODE _STEP_MODE_HALF
 
 #define _USE_HW_LED				//LED
-
+#define _USE_HW_TIM				//TIMER
 
 #endif /* HW_DEF_H_ */

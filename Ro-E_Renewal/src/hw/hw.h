@@ -11,6 +11,7 @@
 
 #include "hw_def.h"
 
+#include "timer.h"
 #include "stepper.h"
 #include "led.h"
 
