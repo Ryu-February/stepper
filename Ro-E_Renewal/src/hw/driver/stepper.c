@@ -56,11 +56,18 @@
 
 	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
 		#define STEP_MASK 0x07
+		#define STEP_PER_REV 40
 	#elif (_USE_STEP_MODE == _STEP_MODE_FULL)
 		#define STEP_MASK 0x03
+		#define STEP_PER_REV 20
 	#elif (_USE_STEP_MODE == _STEP_MODE_MICRO)
 		#define STEP_MASK 0x0F
 	#endif
+	
+	//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
+	#define SAFE_TORQUE_FREQ	833		//unit : Hz
+	#define MAX_PERIOD_US		1200	//unit : us -> 1.2ms
+	#define MIN_PERIOD_US		100000	//unit : us -> 100ms
 
 #endif
 
@@ -134,30 +141,65 @@ void sm_brake(StepMotor *m)
 	*(m->bin2_port) |=  (1 << m->bin2_pin);
 }
 
+void sm_set_speed(StepMotor *m, uint16_t rpm)
+{	
+	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40°)*/
+	rpm = (rpm > 2250) ? 2250 : rpm;
+	rpm = (rpm == 0) ? 1 : rpm;
+	
+	/* period_us = min_to_us / (rpm * steps_per_revolution) */
+	/* 40(steps_per_rev) = 360° / 9°(half-step angle) */
+	/* 60000000(min_to_us) = 60(1minute to sec)* 1000(sec_to_ms) * 1000(ms_to_us) */
+	m->torque_freq_us = 60000000UL / (rpm * STEP_PER_REV);
+}
+
 void roe_sm_init(void)
 {
 	step_motor_left.init(&step_motor_left);
 	step_motor_right.init(&step_motor_right);
 }
 
+
 void roe_sm_forward(void)
 {
-	step_motor_left.forward(&step_motor_left);
-	step_motor_right.forward(&step_motor_right);
-	_delay_us(1200);//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
-	_delay_ms(10);
+	uint32_t current_time = micros();
+	static uint32_t prev_time = 0;
+	
+	if(current_time - prev_time >= MAX_PERIOD_US)
+	{
+		step_motor_left.forward(&step_motor_left);
+		step_motor_right.forward(&step_motor_right);
+		
+		prev_time = current_time;
+	}
 }
 
 void roe_sm_reverse(void)
 {
-	step_motor_left.reverse(&step_motor_left);
-	step_motor_right.reverse(&step_motor_right);
-	_delay_us(1200);
-	_delay_ms(10);
+	uint32_t current_time = micros();
+	static uint32_t prev_time = 0;
+	
+	if(current_time - prev_time >= MAX_PERIOD_US)
+	{
+		step_motor_left.reverse(&step_motor_left);
+		step_motor_right.reverse(&step_motor_right);
+		
+		prev_time = current_time;
+	}
 }
 
+void roe_sm_brake(void)
+{
+	step_motor_left.brake(&step_motor_left);
+	step_motor_right.brake(&step_motor_right);
+}
+
+void roe_sm_control_speed(uint8_t speed)
+{
+	
+}
 
 void roe_sm_operate(void)
-{
+{ 
 	roe_sm_forward();
 }

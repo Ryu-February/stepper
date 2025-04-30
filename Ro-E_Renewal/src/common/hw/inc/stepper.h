@@ -67,6 +67,8 @@
 		uint8_t           bin2_pin;
 	
 		uint8_t step_idx;
+		uint32_t torque_freq_us;//속도 제어 주기
+		uint32_t last_update_us;//이전 스텝 타이밍
 	
 		void (*init)(struct StepMotor*);
 		void (*slide)(struct StepMotor*);
@@ -119,8 +121,10 @@
 	void roe_sm_init(void);
 	void roe_sm_forward(void);
 	void roe_sm_reverse(void);
+	void roe_sm_brake(void);
+	
 	void roe_sm_operate(void);
-
+	
 #endif
 
 

@@ -7,6 +7,8 @@
 
 #include "ap.h"
 
+#define PWM_DUTY_ON		3
+#define PWM_PERIOD		10
 
 
 void ap_init(void)
@@ -18,12 +20,21 @@ void ap_main(void)
 {
 	while(1)
 	{
-		led_set_color(RGB_WHITE);
-		//delay_ms(500);
-		delay_us(1000);
-		led_set_color(RGB_OFF);
-		//delay_ms(500);
-		delay_us(1000);
-		//roe_sm_operate();
+		unsigned char pwm_duty = millis() % 10;
+		
+		if(pwm_duty < PWM_DUTY_ON)
+		{
+			led_set_color(RGB_GREEN);	
+		}
+		else
+		{
+			led_set_color(RGB_OFF);
+			if(pwm_duty == PWM_PERIOD)
+			{
+				pwm_duty = 0;
+			}
+		}
+
+		roe_sm_operate();
 	}
 }
