@@ -22,6 +22,8 @@
 *.map
 *.srec
 *.atsln
+*.cproj
+*.componentinfo.xml
 
 #User Specific Files
 *.atsuo
