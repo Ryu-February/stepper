@@ -15,6 +15,11 @@
 
 #ifdef _USE_HW_STEP
 
+	#define LEFT				0
+	#define RIGHT				1
+	#define FORWARD				0
+	#define REVERSER			1
+
 	// 하프스텝(8단계) 시퀀스용 테이블
 	// { AIN1, AIN2, BIN1, BIN2 }
 	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
@@ -67,8 +72,6 @@
 		uint8_t           bin2_pin;
 	
 		uint8_t step_idx;
-		uint32_t torque_freq_us;//속도 제어 주기
-		uint32_t last_update_us;//이전 스텝 타이밍
 	
 		void (*init)(struct StepMotor*);
 		void (*slide)(struct StepMotor*);
@@ -117,14 +120,18 @@
 		.reverse = sm_reverse,             \
 		.brake   = sm_brake                \
 	};
-
+	
 	void roe_sm_init(void);
 	void roe_sm_forward(void);
 	void roe_sm_reverse(void);
 	void roe_sm_brake(void);
 	
-	void roe_sm_operate(void);
 	
+	uint16_t roe_sm_pwm_to_rpm(uint8_t speed_pwm);
+	uint32_t roe_sm_rpm_to_period(uint16_t rpm);
+	
+	void roe_sm_operate(void);
+	void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir);
 #endif
 
 

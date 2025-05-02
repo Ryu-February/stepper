@@ -68,8 +68,13 @@
 	#define SAFE_TORQUE_FREQ	833		//unit : Hz
 	#define MAX_PERIOD_US		1200	//unit : us -> 1.2ms
 	#define MIN_PERIOD_US		100000	//unit : us -> 100ms
+	
+	#define MAX_RPM				2250
+	
+	
 
 #endif
+
 
 //내뷰 유틸: 현재 step_idx에 맞춰 코일 출력 갱신
 static void apply_coils(StepMotor *m)
@@ -141,17 +146,7 @@ void sm_brake(StepMotor *m)
 	*(m->bin2_port) |=  (1 << m->bin2_pin);
 }
 
-void sm_set_speed(StepMotor *m, uint16_t rpm)
-{	
-	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40°)*/
-	rpm = (rpm > 2250) ? 2250 : rpm;
-	rpm = (rpm == 0) ? 1 : rpm;
-	
-	/* period_us = min_to_us / (rpm * steps_per_revolution) */
-	/* 40(steps_per_rev) = 360° / 9°(half-step angle) */
-	/* 60000000(min_to_us) = 60(1minute to sec)* 1000(sec_to_ms) * 1000(ms_to_us) */
-	m->torque_freq_us = 60000000UL / (rpm * STEP_PER_REV);
-}
+/////////////////////////////////////////////////////////
 
 void roe_sm_init(void)
 {
@@ -162,30 +157,14 @@ void roe_sm_init(void)
 
 void roe_sm_forward(void)
 {
-	uint32_t current_time = micros();
-	static uint32_t prev_time = 0;
-	
-	if(current_time - prev_time >= MAX_PERIOD_US)
-	{
-		step_motor_left.forward(&step_motor_left);
-		step_motor_right.forward(&step_motor_right);
-		
-		prev_time = current_time;
-	}
+	step_motor_left.forward(&step_motor_left);
+	step_motor_right.forward(&step_motor_right);	
 }
 
 void roe_sm_reverse(void)
 {
-	uint32_t current_time = micros();
-	static uint32_t prev_time = 0;
-	
-	if(current_time - prev_time >= MAX_PERIOD_US)
-	{
-		step_motor_left.reverse(&step_motor_left);
-		step_motor_right.reverse(&step_motor_right);
-		
-		prev_time = current_time;
-	}
+	step_motor_left.reverse(&step_motor_left);
+	step_motor_right.reverse(&step_motor_right);
 }
 
 void roe_sm_brake(void)
@@ -194,12 +173,86 @@ void roe_sm_brake(void)
 	step_motor_right.brake(&step_motor_right);
 }
 
-void roe_sm_control_speed(uint8_t speed)
+int constrain(int target_value, int min_value, int max_value)
 {
+	if(target_value > max_value)
+	{
+		return max_value;
+	}
+	else if(target_value < min_value)
+	{
+		return min_value;
+	}
+	else
+	{
+		return target_value;
+	}
+}
+
+int mapping(int target_value, int from_low, int from_high, int to_low, int to_high)
+{
+	return (target_value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low;
+}
+
+uint16_t roe_sm_pwm_to_rpm(uint8_t speed_pwm)
+{
+	return mapping(speed_pwm, 0, 100, 0, 2250);
+}
+
+uint32_t roe_sm_rpm_to_period(uint16_t rpm)
+{
+	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40°)*/
+	rpm = (rpm > MAX_RPM) ? MAX_RPM : rpm;
+	rpm = (rpm == 0) ? 1 : rpm;
 	
+	/* period_us = min_to_us / (rpm * steps_per_revolution) */
+	/* 40(steps_per_rev) = 360° / 9°(half-step angle) */
+	/* 60000000(min_to_us) = 60(1minute to sec)* 1000(sec_to_ms) * 1000(ms_to_us) */
+	return 60000000UL / ( (uint32_t)rpm * STEP_PER_REV);
 }
 
 void roe_sm_operate(void)
 { 
-	roe_sm_forward();
+	
+	uint16_t rpm = roe_sm_pwm_to_rpm(1);
+	if (rpm == 0)
+	{
+		roe_sm_brake();
+		return;
+	}
+	
+	uint32_t rpm_to_period = roe_sm_rpm_to_period(rpm);
+	uint32_t current_time = micros();
+	static uint32_t prev_time = 0;
+	
+	if(current_time - prev_time >= rpm_to_period)
+	{
+		roe_sm_reverse();	
+		prev_time = current_time;
+	}
+}
+
+void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir)
+{
+	StepMotor *m;
+	uint32_t period;
+	void (*dir_op)(StepMotor *);
+	
+	m = (m_pin == LEFT) ? &step_motor_left : &step_motor_right;
+	
+	period = roe_sm_rpm_to_period(roe_sm_pwm_to_rpm(speed));
+	
+	dir_op = (m_dir == FORWARD) ? m->forward : m->reverse;
+	
+	static uint32_t last_time_left = 0;
+	static uint32_t last_time_right = 0;
+	uint32_t *prev_time = (m_pin == LEFT) ? &last_time_left : &last_time_right;
+	
+	uint32_t current_time = micros();
+	
+	if(current_time - *prev_time >= period)
+	{
+		dir_op(m);
+		*prev_time = current_time;
+	}
 }

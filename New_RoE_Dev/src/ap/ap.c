@@ -35,6 +35,8 @@ void ap_main(void)
 			}
 		}
 
-		roe_sm_operate();
+		//roe_sm_operate();
+		roe_operate_rogic(0, 30, 1);
+		roe_operate_rogic(1, 60, 0);
 	}
 }
