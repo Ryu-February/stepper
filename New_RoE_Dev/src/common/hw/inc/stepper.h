@@ -18,7 +18,7 @@
 	#define LEFT				0
 	#define RIGHT				1
 	#define FORWARD				0
-	#define REVERSER			1
+	#define REVERSE				1
 
 	// 하프스텝(8단계) 시퀀스용 테이블
 	// { AIN1, AIN2, BIN1, BIN2 }
@@ -72,6 +72,9 @@
 		uint8_t           bin2_pin;
 	
 		uint8_t step_idx;
+		
+		uint32_t period_us;
+		uint32_t last_period_us;
 	
 		void (*init)(struct StepMotor*);
 		void (*slide)(struct StepMotor*);
@@ -127,8 +130,8 @@
 	void roe_sm_brake(void);
 	
 	
-	uint16_t roe_sm_pwm_to_rpm(uint8_t speed_pwm);
-	uint32_t roe_sm_rpm_to_period(uint16_t rpm);
+	uint32_t pwm_to_rpm(uint8_t speed_pwm);
+	uint32_t rpm_to_period(uint16_t rpm);
 	
 	void roe_sm_operate(void);
 	void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir);

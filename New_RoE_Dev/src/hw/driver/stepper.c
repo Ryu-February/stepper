@@ -65,14 +65,16 @@
 	#endif
 	
 	//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
-	#define SAFE_TORQUE_FREQ	833		//unit : Hz
+	#define SAFE_TORQUE_FREQ	800		//unit : Hz
 	#define MAX_PERIOD_US		1200	//unit : us -> 1.2ms
 	#define MIN_PERIOD_US		100000	//unit : us -> 100ms
 	
 	#define MAX_RPM				2250
+	#define SAFE_MAX_RPM		1200
+	#define MIN_RPM				0
+	#define MIN_SPEED			0
+	#define MAX_SPEED			100
 	
-	
-
 #endif
 
 
@@ -189,20 +191,23 @@ int constrain(int target_value, int min_value, int max_value)
 	}
 }
 
-int mapping(int target_value, int from_low, int from_high, int to_low, int to_high)
+int32_t mapping(int target_value, int from_low, int from_high, int to_low, int to_high)
 {
+	target_value = constrain(target_value, from_low, from_high);
 	return (target_value - from_low) * (to_high - to_low) / (from_high - from_low) + to_low;
 }
 
-uint16_t roe_sm_pwm_to_rpm(uint8_t speed_pwm)
+uint32_t pwm_to_rpm(uint8_t speed_pwm)
 {
-	return mapping(speed_pwm, 0, 100, 0, 2250);
+	return mapping(speed_pwm, MIN_SPEED, MAX_SPEED, MIN_RPM, SAFE_MAX_RPM);
 }
 
-uint32_t roe_sm_rpm_to_period(uint16_t rpm)
+uint32_t rpm_to_period(uint16_t rpm)
 {
 	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40°)*/
-	rpm = (rpm > MAX_RPM) ? MAX_RPM : rpm;
+	/*But we have to secure safe freq*/
+	/*safe_rpm(1200) = 800(safe_pps) * 60(1min) / half-step(40°)*/
+	rpm = (rpm > SAFE_MAX_RPM) ? SAFE_MAX_RPM : rpm;
 	rpm = (rpm == 0) ? 1 : rpm;
 	
 	/* period_us = min_to_us / (rpm * steps_per_revolution) */
@@ -212,22 +217,21 @@ uint32_t roe_sm_rpm_to_period(uint16_t rpm)
 }
 
 void roe_sm_operate(void)
-{ 
-	
-	uint16_t rpm = roe_sm_pwm_to_rpm(1);
+{
+	uint16_t rpm = pwm_to_rpm(1);
 	if (rpm == 0)
 	{
 		roe_sm_brake();
 		return;
 	}
 	
-	uint32_t rpm_to_period = roe_sm_rpm_to_period(rpm);
+	uint32_t period = rpm_to_period(rpm);
 	uint32_t current_time = micros();
 	static uint32_t prev_time = 0;
 	
-	if(current_time - prev_time >= rpm_to_period)
+	if(current_time - prev_time >= period)
 	{
-		roe_sm_reverse();	
+		roe_sm_reverse();
 		prev_time = current_time;
 	}
 }
@@ -235,24 +239,24 @@ void roe_sm_operate(void)
 void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir)
 {
 	StepMotor *m;
-	uint32_t period;
 	void (*dir_op)(StepMotor *);
 	
 	m = (m_pin == LEFT) ? &step_motor_left : &step_motor_right;
 	
-	period = roe_sm_rpm_to_period(roe_sm_pwm_to_rpm(speed));
+	if(speed == 0)
+	{
+		m->brake(m);
+		return;
+	}
+	m->period_us = rpm_to_period(pwm_to_rpm(speed));
 	
 	dir_op = (m_dir == FORWARD) ? m->forward : m->reverse;
 	
-	static uint32_t last_time_left = 0;
-	static uint32_t last_time_right = 0;
-	uint32_t *prev_time = (m_pin == LEFT) ? &last_time_left : &last_time_right;
-	
 	uint32_t current_time = micros();
-	
-	if(current_time - *prev_time >= period)
+	if(current_time - m->last_period_us >= m->period_us)
 	{
 		dir_op(m);
-		*prev_time = current_time;
+		m->last_period_us = current_time;
 	}
 }
+
