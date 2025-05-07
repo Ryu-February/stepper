@@ -21,7 +21,7 @@
 		_STEP_MODE_MICRO = 3
 	}StepMode_t;
 
-	#define _USE_STEP_MODE _STEP_MODE_HALF
+	#define _USE_STEP_MODE _STEP_MODE_MICRO
 
 #define _USE_HW_LED				//LED
 #define _USE_HW_TIM				//TIMER

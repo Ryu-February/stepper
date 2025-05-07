@@ -6,6 +6,7 @@
  */ 
 
 #include "stepper.h"
+#include "timer.h"
 
 /*                            Motor(15BY25-119)                         */
 /*                          Motor driver(PN7713)                        */
@@ -53,30 +54,8 @@
 	PORTB, DDRB, PB5,   // BIN1: PB5
 	PORTB, DDRB, PB4    // BIN2: PB4
 	);
-
-	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
-		#define STEP_MASK 0x07
-		#define STEP_PER_REV 40
-	#elif (_USE_STEP_MODE == _STEP_MODE_FULL)
-		#define STEP_MASK 0x03
-		#define STEP_PER_REV 20
-	#elif (_USE_STEP_MODE == _STEP_MODE_MICRO)
-		#define STEP_MASK 0x0F
-	#endif
-	
-	//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
-	#define SAFE_TORQUE_FREQ	800		//unit : Hz
-	#define MAX_PERIOD_US		1200	//unit : us -> 1.2ms
-	#define MIN_PERIOD_US		100000	//unit : us -> 100ms
-	
-	#define MAX_RPM				2250
-	#define SAFE_MAX_RPM		1200
-	#define MIN_RPM				0
-	#define MIN_SPEED			0
-	#define MAX_SPEED			100
 	
 #endif
-
 
 //내뷰 유틸: 현재 step_idx에 맞춰 코일 출력 갱신
 static void apply_coils(StepMotor *m)
@@ -204,9 +183,9 @@ uint32_t pwm_to_rpm(uint8_t speed_pwm)
 
 uint32_t rpm_to_period(uint16_t rpm)
 {
-	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40°)*/
+	/*max_rpm(2250) = 1500(max_PPS) * 60(1min) / half-step(40)*/
 	/*But we have to secure safe freq*/
-	/*safe_rpm(1200) = 800(safe_pps) * 60(1min) / half-step(40°)*/
+	/*safe_rpm(1200) = 800(safe_pps) * 60(1min) / half-step(40)*/
 	rpm = (rpm > SAFE_MAX_RPM) ? SAFE_MAX_RPM : rpm;
 	rpm = (rpm == 0) ? 1 : rpm;
 	
@@ -236,6 +215,7 @@ void roe_sm_operate(void)
 	}
 }
 
+
 void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir)
 {
 	StepMotor *m;
@@ -253,10 +233,46 @@ void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir)
 	dir_op = (m_dir == FORWARD) ? m->forward : m->reverse;
 	
 	uint32_t current_time = micros();
-	if(current_time - m->last_period_us >= m->period_us)
+	if(current_time - m->prev_time >= m->period_us)
 	{
 		dir_op(m);
-		m->last_period_us = current_time;
+		m->prev_time = current_time;
+	}
+}
+
+//ms_left	 = {step_motor_left, 0};
+//ms_right = {step_motor_right, 8};
+
+void ms_operate(MicroStepMotor *m, uint8_t speed, uint8_t dir)
+{
+	if(speed == 0)
+	{
+		m->base.brake(&m->base);
+		return;
+	}
+	
+	m->base.period_us = rpm_to_period(pwm_to_rpm(speed));
+	uint32_t current_time = micros();
+	if(current_time - m->base.prev_time >= m->base.period_us)
+	{
+		m->micro_idx = (m->micro_idx + (dir == REVERSE ? 15 : 1)) & 0x0F;
+		uint8_t vA = STEP_TABLE[m->micro_idx][0];
+		uint8_t vB = STEP_TABLE[m->micro_idx][1];
+		
+		// 코일 A
+		if (ms_pwm_cnt < vA) *(m->base.ain1_port) |=  (1 << m->base.ain1_pin);
+		else				 *(m->base.ain1_port) &= ~(1 << m->base.ain1_pin);
+		
+		if (ms_pwm_cnt < (MICRO_MAX_PWM - vA))	*(m->base.ain2_port) |=  (1 << m->base.ain2_pin);
+		else					                *(m->base.ain2_port) &= ~(1 << m->base.ain2_pin);
+		
+		// 코일 B
+		if (ms_pwm_cnt < vB)	*(m->base.bin1_port) |=  (1 << m->base.bin1_pin);
+		else					*(m->base.bin1_port) &= ~(1 << m->base.bin1_pin);
+		
+		if (ms_pwm_cnt < (MICRO_MAX_PWM - vB))	*(m->base.bin2_port) |=  (1 << m->base.bin2_pin);
+		else									*(m->base.bin2_port) &= ~(1 << m->base.bin2_pin);
+		m->base.prev_time = current_time;
 	}
 }
 

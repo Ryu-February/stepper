@@ -19,8 +19,32 @@
 	#define RIGHT				1
 	#define FORWARD				0
 	#define REVERSE				1
-
-	// 하프스텝(8단계) 시퀀스용 테이블
+	
+	//max slew speed : 1500Hz mininmum -> 1/1500 ~= 666us
+	#define SAFE_TORQUE_FREQ	800		//unit : Hz
+	#define MAX_PERIOD_US		1200	//unit : us -> 1.2ms
+	#define MIN_PERIOD_US		100000	//unit : us -> 100ms
+	
+	#define MAX_RPM				2250
+	#define SAFE_MAX_RPM		1200
+	#define MIN_RPM				0
+	#define MIN_SPEED			0
+	#define MAX_SPEED			100
+	
+	#define MICRO_MAX_PWM		255
+	
+	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
+		#define STEP_MASK 0x07
+		#define STEP_PER_REV 40
+	#elif (_USE_STEP_MODE == _STEP_MODE_FULL)
+		#define STEP_MASK 0x03
+		#define STEP_PER_REV 20
+	#elif (_USE_STEP_MODE == _STEP_MODE_MICRO)
+		#define STEP_MASK 0x0F
+		#define STEP_PER_REV 80
+	#endif
+	
+	// 하프스텝(8단계) 시퀀스용 테이블 -> 9° (18 % 2)
 	// { AIN1, AIN2, BIN1, BIN2 }
 	#if (_USE_STEP_MODE == _STEP_MODE_HALF)
 	static const uint8_t STEP_TABLE[8][4] = 
@@ -35,7 +59,7 @@
 		{1,0,0,0},
 	};
 
-	// 풀스탭(4단계) 시퀀스용 테이블
+	// 풀스탭(4단계) 시퀀스용 테이블 -> 18°(step angle)
 	#elif (_USE_STEP_MODE == _STEP_MODE_FULL)
 	static const uint8_t STEP_TABLE[4][4] = 
 	{
@@ -44,37 +68,32 @@
 		{0,1,0,1},  // A- & B-
 		{1,0,0,1},  // A+ & B-
 	};
-
 	#elif (_USE_STEP_MODE == _STEP_MODE_MICRO)
-	static const uint8_t STEP_TABLE_MICRO[16][2] = 
+	static const uint8_t STEP_TABLE[16][2] =
 	{
-		{128, 255}, {180, 240}, 
+		{128, 255}, {180, 240},
 		{224, 200}, {253, 144},
-		{255,  80}, {238,  28}, 
+		{255,  80}, {238,  28},
 		{200,   2}, {144,   0},
-		{ 80,   4}, { 28,  28}, 
+		{ 80,   4}, { 28,  28},
 		{  2,  80}, {  0, 144},
-		{  4, 200}, { 28, 240}, 
+		{  4, 200}, { 28, 240},
 		{ 80, 255}, {144, 253}
 	};
 	#endif
-
+	
 	// 1) StepMotor 구조체 선언
 	typedef struct StepMotor 
 	{
-		volatile uint8_t *ain1_port, *ain1_ddr;//구조체 멤버
-		uint8_t           ain1_pin;
-		volatile uint8_t *ain2_port, *ain2_ddr;
-		uint8_t           ain2_pin;
-		volatile uint8_t *bin1_port, *bin1_ddr;
-		uint8_t           bin1_pin;
-		volatile uint8_t *bin2_port, *bin2_ddr;
-		uint8_t           bin2_pin;
+		volatile uint8_t *ain1_port, *ain1_ddr; uint8_t ain1_pin;
+		volatile uint8_t *ain2_port, *ain2_ddr; uint8_t ain2_pin;
+		volatile uint8_t *bin1_port, *bin1_ddr; uint8_t bin1_pin;
+		volatile uint8_t *bin2_port, *bin2_ddr; uint8_t bin2_pin;
 	
 		uint8_t step_idx;
 		
 		uint32_t period_us;
-		uint32_t last_period_us;
+		uint32_t prev_time;
 	
 		void (*init)(struct StepMotor*);
 		void (*slide)(struct StepMotor*);
@@ -82,7 +101,15 @@
 		void (*reverse)(struct StepMotor*);
 		void (*brake)(struct StepMotor*);
 	} StepMotor;
-
+	
+	typedef struct
+	{
+		StepMotor base;
+		uint8_t micro_idx;
+	}MicroStepMotor;
+	
+	//MicroStepMotor ms_left, ms_right;
+	
 	// 2) 함수 원형
 	void sm_init   (StepMotor *m);
 	void sm_slide  (StepMotor *m);
@@ -135,6 +162,8 @@
 	
 	void roe_sm_operate(void);
 	void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir);
+	
+	void ms_operate(MicroStepMotor *m, uint8_t speed, uint8_t dir);
 #endif
 
 

@@ -8,11 +8,13 @@
 
 volatile uint32_t timer0_ovf_cnt;
 volatile uint32_t timer1_ovf_cnt;
+volatile uint32_t ms_pwm_cnt;
 
 ISR(TIMER0_OVF_vect)//1ms interrupt
 {
 	TCNT0 = 6;
 	timer0_ovf_cnt++;
+	ms_pwm_cnt++;
 }
 
 ISR(TIMER1_OVF_vect)//1us interrupt
