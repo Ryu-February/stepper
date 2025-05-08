@@ -55,6 +55,9 @@
 	PORTB, DDRB, PB4    // BIN2: PB4
 	);
 	
+	MicroStepMotor ms_left  = { .base = &step_motor_left,  .micro_idx = 0 };
+	MicroStepMotor ms_right = { .base = &step_motor_right, .micro_idx = 8 };
+	
 #endif
 
 //내뷰 유틸: 현재 step_idx에 맞춰 코일 출력 갱신
@@ -72,6 +75,20 @@ static void apply_coils(StepMotor *m)
 	// BIN2
 	if (STEP_TABLE[m->step_idx][3]) *(m->bin2_port) |=  (1 << m->bin2_pin);
 	else                            *(m->bin2_port) &= ~(1 << m->bin2_pin);
+}
+
+static void apply_ms_coils(StepMotor *m, uint8_t vA, uint8_t vB)
+{
+	 // Coil A
+	 if (ms_pwm_cnt < vA)					*(m->ain1_port) |=  (1 << m->ain1_pin);
+	 else									*(m->ain1_port) &= ~(1 << m->ain1_pin);
+	 if (ms_pwm_cnt < (MICRO_MAX_PWM - vA)) *(m->ain2_port) |=  (1 << m->ain2_pin);
+	 else                                   *(m->ain2_port) &= ~(1 << m->ain2_pin);
+	 // Coil B
+	 if (ms_pwm_cnt < vB)					*(m->bin1_port) |=  (1 << m->bin1_pin);
+	 else									*(m->bin1_port) &= ~(1 << m->bin1_pin);
+	 if (ms_pwm_cnt < (MICRO_MAX_PWM - vB)) *(m->bin2_port) |=  (1 << m->bin2_pin);
+	 else                                   *(m->bin2_port) &= ~(1 << m->bin2_pin);
 }
 
 // 초기화: 모든 입력 핀 출력으로 설정
@@ -240,39 +257,30 @@ void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir)
 	}
 }
 
-//ms_left	 = {step_motor_left, 0};
-//ms_right = {step_motor_right, 8};
 
-void ms_operate(MicroStepMotor *m, uint8_t speed, uint8_t dir)
+
+void ms_operate(uint8_t m_pin, uint8_t speed, uint8_t m_dir)
 {
+	MicroStepMotor *m = (m_pin == LEFT) ? &ms_left : &ms_right;
+	
 	if(speed == 0)
 	{
-		m->base.brake(&m->base);
+		m->base->brake(m->base);
 		return;
 	}
 	
-	m->base.period_us = rpm_to_period(pwm_to_rpm(speed));
+	m->base->period_us = rpm_to_period(pwm_to_rpm(speed));
 	uint32_t current_time = micros();
-	if(current_time - m->base.prev_time >= m->base.period_us)
+	if ((current_time - m->base->prev_time) < m->base->period_us) 
 	{
-		m->micro_idx = (m->micro_idx + (dir == REVERSE ? 15 : 1)) & 0x0F;
-		uint8_t vA = STEP_TABLE[m->micro_idx][0];
-		uint8_t vB = STEP_TABLE[m->micro_idx][1];
-		
-		// 코일 A
-		if (ms_pwm_cnt < vA) *(m->base.ain1_port) |=  (1 << m->base.ain1_pin);
-		else				 *(m->base.ain1_port) &= ~(1 << m->base.ain1_pin);
-		
-		if (ms_pwm_cnt < (MICRO_MAX_PWM - vA))	*(m->base.ain2_port) |=  (1 << m->base.ain2_pin);
-		else					                *(m->base.ain2_port) &= ~(1 << m->base.ain2_pin);
-		
-		// 코일 B
-		if (ms_pwm_cnt < vB)	*(m->base.bin1_port) |=  (1 << m->base.bin1_pin);
-		else					*(m->base.bin1_port) &= ~(1 << m->base.bin1_pin);
-		
-		if (ms_pwm_cnt < (MICRO_MAX_PWM - vB))	*(m->base.bin2_port) |=  (1 << m->base.bin2_pin);
-		else									*(m->base.bin2_port) &= ~(1 << m->base.bin2_pin);
-		m->base.prev_time = current_time;
+		return;	
 	}
+	
+	m->base->prev_time = current_time;
+	 
+	// update step index
+	m->micro_idx = (m->micro_idx + (m_dir == REVERSE ? STEP_MASK : 1)) & STEP_MASK;
+	uint8_t vA = STEP_TABLE[m->micro_idx][0];
+	uint8_t vB = STEP_TABLE[m->micro_idx][1];
+	apply_ms_coils(m->base, vA, vB);
 }
-

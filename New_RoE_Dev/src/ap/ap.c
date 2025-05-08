@@ -36,9 +36,9 @@ void ap_main(void)
 		}
 
 		//roe_sm_operate();
-		roe_operate_rogic(LEFT , 100, FORWARD);
-		roe_operate_rogic(RIGHT, 100, FORWARD);
+		roe_operate_rogic(LEFT , 10, FORWARD);
+		roe_operate_rogic(RIGHT, 10, FORWARD);
 		
-		//ms_operate(&ms_left, 30, FORWARD);
+		//ms_operate(LEFT, 30, FORWARD);
 	}
 }

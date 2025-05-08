@@ -104,11 +104,11 @@
 	
 	typedef struct
 	{
-		StepMotor base;
+		StepMotor *base;
 		uint8_t micro_idx;
 	}MicroStepMotor;
 	
-	//MicroStepMotor ms_left, ms_right;
+	extern MicroStepMotor ms_left, ms_right;
 	
 	// 2) 함수 원형
 	void sm_init   (StepMotor *m);
@@ -163,7 +163,8 @@
 	void roe_sm_operate(void);
 	void roe_operate_rogic(uint8_t m_pin, uint8_t speed, unsigned char m_dir);
 	
-	void ms_operate(MicroStepMotor *m, uint8_t speed, uint8_t dir);
+	//void ms_operate(MicroStepMotor *m, uint8_t speed, uint8_t m_dir);
+	void ms_operate(uint8_t m_pin, uint8_t speed, uint8_t m_dir);
 #endif
 
 
