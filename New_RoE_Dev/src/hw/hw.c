@@ -17,5 +17,6 @@ void hw_init(void)
 	led_init();
 	timer0_init();
 	timer1_init();
+	timer2_init();
 	roe_sm_init();//Ro-E step motor init
 }

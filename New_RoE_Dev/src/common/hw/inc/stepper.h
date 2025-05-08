@@ -106,6 +106,8 @@
 	{
 		StepMotor *base;
 		uint8_t micro_idx;
+		uint8_t vA;
+		uint8_t vB;
 	}MicroStepMotor;
 	
 	extern MicroStepMotor ms_left, ms_right;

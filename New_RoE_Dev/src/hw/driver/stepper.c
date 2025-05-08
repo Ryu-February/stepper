@@ -60,6 +60,8 @@
 	
 #endif
 
+volatile uint8_t ms_pwm_cnt;
+
 //내뷰 유틸: 현재 step_idx에 맞춰 코일 출력 갱신
 static void apply_coils(StepMotor *m)
 {
@@ -280,7 +282,18 @@ void ms_operate(uint8_t m_pin, uint8_t speed, uint8_t m_dir)
 	 
 	// update step index
 	m->micro_idx = (m->micro_idx + (m_dir == REVERSE ? STEP_MASK : 1)) & STEP_MASK;
-	uint8_t vA = STEP_TABLE[m->micro_idx][0];
-	uint8_t vB = STEP_TABLE[m->micro_idx][1];
-	apply_ms_coils(m->base, vA, vB);
+	//uint8_t vA = STEP_TABLE[m->micro_idx][0];
+	//uint8_t vB = STEP_TABLE[m->micro_idx][1];
+	//apply_ms_coils(m->base, vA, vB);
+	// save new vA/vB only
+	m->vA = STEP_TABLE[m->micro_idx][0];
+	m->vB = STEP_TABLE[m->micro_idx][1];
+}
+
+ISR(TIMER2_OVF_vect)
+{
+	ms_pwm_cnt = (ms_pwm_cnt + 1) % 255;
+	
+	apply_ms_coils(ms_left.base,  ms_left.vA,  ms_left.vB);
+	apply_ms_coils(ms_right.base, ms_right.vA, ms_right.vB);
 }

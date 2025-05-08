@@ -5,16 +5,16 @@
  *  Author: RCY
  */ 
 #include "timer.h"
+#include "stepper.h"
 
 volatile uint32_t timer0_ovf_cnt;
 volatile uint32_t timer1_ovf_cnt;
-volatile uint8_t ms_pwm_cnt;
+
 
 ISR(TIMER0_OVF_vect)//1ms interrupt
 {
 	TCNT0 = 6;
 	timer0_ovf_cnt++;
-	ms_pwm_cnt = (ms_pwm_cnt + 1) % 255;
 }
 
 ISR(TIMER1_OVF_vect)//1us interrupt
@@ -44,13 +44,13 @@ void timer1_init(void)
 	sei();
 }
 
-/*100us irq*/
+/*1ms irq*/
 void timer2_init(void)
 {
 	TCCR2A = 0x00;//normal mode
-	TCCR2B = (1 << CS22);
+	TCCR2B = (1 << CS22);	//prescaler = 64
 	TIMSK0 = (1 << TOIE2);
-	TCNT2 = 231;
+	TCNT2 = 6;
 	
 	sei();
 }
