@@ -21,6 +21,7 @@ void hw_init(void)
 	
 	led_init();
 	color_init();
+	switch_init();
 	
 	roe_sm_init();//Ro-E step motor init
 	
