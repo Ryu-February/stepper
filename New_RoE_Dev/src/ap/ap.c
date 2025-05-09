@@ -12,6 +12,22 @@
 
 volatile uint8_t rgb_set_param = RGB_GREEN;
 
+void switch_handler(bool pressed)
+{
+	if(pressed)
+	{
+		//if(color_read16(TCS34725_DEVICE_ID) == 0x44)
+		//{
+			//rgb_set_param = RGB_WHITE;
+		//}
+		rgb_set_param = RGB_RED;
+	}
+	else
+	{
+		rgb_set_param = RGB_MAGENTA;
+	}
+}
+
 void ap_init(void)
 {
 	switch_attach_callback(switch_handler);
@@ -21,29 +37,29 @@ void ap_main(void)
 {
 	while(1)
 	{
-		unsigned char pwm_duty = millis() % 10;
-		
-		if(pwm_duty < PWM_DUTY_ON)
-		{
-			led_set_color(rgb_set_param);	
-		}
-		else
-		{
-			led_set_color(RGB_OFF);
-			if(pwm_duty == PWM_PERIOD)
-			{
-				pwm_duty = 0;
-			}
-		}
+		//unsigned char pwm_duty = millis() % 10;
+		//
+		//if(pwm_duty < PWM_DUTY_ON)
+		//{
+			//led_set_color(rgb_set_param);	
+		//}
+		//else
+		//{
+			//led_set_color(RGB_OFF);
+			//if(pwm_duty == PWM_PERIOD)
+			//{
+				//pwm_duty = 0;
+			//}
+		//}
 
 		//roe_operate_rogic(LEFT , 10, FORWARD);
 		//roe_operate_rogic(RIGHT, 10, FORWARD);		
 		//ms_operate(LEFT, 30, FORWARD);
 		
-		//if(color_read16(TCS34725_DEVICE_ID) == 0x44)
-		//{
-			//rgb_set_param = RGB_WHITE;
-		//}
+		if(color_read16(TCS34725_DEVICE_ID) == 0x44)
+		{
+			rgb_set_param = RGB_WHITE;
+		}
 		
 		
 		//delay_ms(20);
