@@ -62,9 +62,14 @@ uint8_t color_read8(uint8_t reg)
  */
 uint16_t color_read16(uint8_t reg)
 {
-    uint8_t low  = color_read8(reg);
-    uint8_t high = color_read8(reg + 1);
-    return ((uint16_t)high << 8) | low;
+	uint8_t status = color_read8(TCS34725_STATUS);
+	if (status & TCS34725_STATUS_AVALID) // AVALID가 1이면 데이터 준비 완료
+	{
+		uint8_t low  = color_read8(reg);
+		uint8_t high = color_read8(reg + 1);
+		return ((uint16_t)high << 8) | low;
+	}
+    return 0;
 }
 
 /**

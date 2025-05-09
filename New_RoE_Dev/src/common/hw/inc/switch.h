@@ -24,7 +24,16 @@ typedef struct
 	uint8_t sw_mask;
 }switch_t;
 
+typedef enum {
+	SW_EVENT_NONE = 0,
+	SW_EVENT_PRESSED,
+	SW_EVENT_RELEASED
+} sw_event_t;
+
+extern volatile sw_event_t switch_state;  // bool → enum으로 변경
+
 typedef void (*switch_cb_t)(bool pressed);
+extern switch_cb_t _sw_cb;
 
 void switch_init(void);
 bool switch_check(void);

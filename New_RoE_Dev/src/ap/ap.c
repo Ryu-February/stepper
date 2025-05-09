@@ -16,16 +16,30 @@ void switch_handler(bool pressed)
 {
 	if(pressed)
 	{
-		//if(color_read16(TCS34725_DEVICE_ID) == 0x44)
-		//{
-			//rgb_set_param = RGB_WHITE;
-		//}
-		rgb_set_param = RGB_RED;
+		uint8_t reg_value = color_read16(TCS34725_DEVICE_ID);
+		if(reg_value == 0x44)
+		{
+			rgb_set_param = RGB_WHITE;
+		}
+		else
+		{
+			rgb_set_param = RGB_RED;	
+		}
+		//switch_state = 0;
 	}
 	else
 	{
 		rgb_set_param = RGB_MAGENTA;
 	}
+}
+
+bool sw_get_event(void)
+{
+	if(switch_state)
+	{
+		return true;	
+	}
+	return false;
 }
 
 void ap_init(void)
@@ -56,12 +70,8 @@ void ap_main(void)
 		//roe_operate_rogic(RIGHT, 10, FORWARD);		
 		//ms_operate(LEFT, 30, FORWARD);
 		
-		if(color_read16(TCS34725_DEVICE_ID) == 0x44)
-		{
-			rgb_set_param = RGB_WHITE;
-		}
+		_sw_cb(switch_state);
 		
-		
-		//delay_ms(20);
+		led_set_color(rgb_set_param);
 	}
 }

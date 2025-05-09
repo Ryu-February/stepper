@@ -17,6 +17,9 @@
 #define TCS34725_DEVICE_ID		 0x12
 #define TCS34725_COMMAND_BIT     0x80
 
+#define TCS34725_STATUS			 0x13
+#define TCS34725_STATUS_AVALID	 (1 << 0)
+
 #define TCS34725_ENABLE          0x00
 #define TCS34725_ENABLE_PON      0x01
 #define TCS34725_ENABLE_AEN      0x02

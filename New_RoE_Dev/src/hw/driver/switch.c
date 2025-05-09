@@ -6,7 +6,8 @@
  */ 
 #include "switch.h"
 
-static switch_cb_t _sw_cb = NULL;
+switch_cb_t _sw_cb = NULL;
+volatile sw_event_t switch_state = SW_EVENT_NONE;
 
 static const switch_t sw =
 {
@@ -58,7 +59,13 @@ ISR(PCINT2_vect)
 	
 	if(prev_state != current_state && _sw_cb)//콜백 함수가 연동됐는지 확인하기 위함
 	{
-		_sw_cb(current_state == 0);
+		//_sw_cb(current_state == 0);
+		switch_state = 1;
+	}
+	
+	if(current_state == 1)
+	{
+		switch_state = 0;
 	}
 	prev_state = current_state;
 }
