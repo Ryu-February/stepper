@@ -14,27 +14,27 @@ volatile uint8_t rgb_set_param = RGB_GREEN;
 
 void ap_init(void)
 {
-	
+	switch_attach_callback(switch_handler);
 }
 
 void ap_main(void)
 {
 	while(1)
 	{
-		unsigned char pwm_duty = millis() % 10;
-		
-		if(pwm_duty < PWM_DUTY_ON)
-		{
-			led_set_color(rgb_set_param);	
-		}
-		else
-		{
-			led_set_color(RGB_OFF);
-			if(pwm_duty == PWM_PERIOD)
-			{
-				pwm_duty = 0;
-			}
-		}
+		//unsigned char pwm_duty = millis() % 10;
+		//
+		//if(pwm_duty < PWM_DUTY_ON)
+		//{
+			//led_set_color(rgb_set_param);	
+		//}
+		//else
+		//{
+			//led_set_color(RGB_OFF);
+			//if(pwm_duty == PWM_PERIOD)
+			//{
+				//pwm_duty = 0;
+			//}
+		//}
 
 		//roe_operate_rogic(LEFT , 10, FORWARD);
 		//roe_operate_rogic(RIGHT, 10, FORWARD);		
@@ -45,14 +45,7 @@ void ap_main(void)
 			//rgb_set_param = RGB_WHITE;
 		//}
 		
-		if(switch_check())
-		{
-			rgb_set_param = RGB_MAGENTA;
-		}
-		else
-		{
-			rgb_set_param = RGB_WHITE;
-		}
+		
 		//delay_ms(20);
 	}
 }

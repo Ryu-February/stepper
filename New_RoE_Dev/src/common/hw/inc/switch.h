@@ -24,8 +24,12 @@ typedef struct
 	uint8_t sw_mask;
 }switch_t;
 
+typedef void (*switch_cb_t)(bool pressed);
+
 void switch_init(void);
 bool switch_check(void);
+void switch_attach_callback(switch_cb_t cb);
+void switch_handler(bool pressed);
 
 #endif
 
