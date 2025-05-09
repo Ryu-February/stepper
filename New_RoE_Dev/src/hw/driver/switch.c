@@ -60,12 +60,11 @@ ISR(PCINT2_vect)
 	if(prev_state != current_state && _sw_cb)//콜백 함수가 연동됐는지 확인하기 위함
 	{
 		//_sw_cb(current_state == 0);
-		switch_state = 1;
+		if (current_state == 0)
+			switch_state = SW_EVENT_PRESSED;
+		else
+			switch_state = SW_EVENT_RELEASED;
 	}
 	
-	if(current_state == 1)
-	{
-		switch_state = 0;
-	}
 	prev_state = current_state;
 }

@@ -25,7 +25,6 @@ void switch_handler(bool pressed)
 		{
 			rgb_set_param = RGB_RED;	
 		}
-		//switch_state = 0;
 	}
 	else
 	{
@@ -70,7 +69,12 @@ void ap_main(void)
 		//roe_operate_rogic(RIGHT, 10, FORWARD);		
 		//ms_operate(LEFT, 30, FORWARD);
 		
-		_sw_cb(switch_state);
+		if(switch_state != SW_EVENT_NONE)
+		{
+			if(_sw_cb)
+				_sw_cb(switch_state == SW_EVENT_PRESSED);	
+		}
+		switch_state = SW_EVENT_NONE;
 		
 		led_set_color(rgb_set_param);
 	}
