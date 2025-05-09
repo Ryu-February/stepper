@@ -5,7 +5,6 @@
  *  Author: RCY
  */ 
 #include "timer.h"
-#include "stepper.h"
 
 volatile uint32_t timer0_ovf_cnt;
 volatile uint32_t timer1_ovf_cnt;

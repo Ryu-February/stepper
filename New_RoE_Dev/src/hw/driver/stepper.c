@@ -6,7 +6,6 @@
  */ 
 
 #include "stepper.h"
-#include "timer.h"
 
 /*                            Motor(15BY25-119)                         */
 /*                          Motor driver(PN7713)                        */

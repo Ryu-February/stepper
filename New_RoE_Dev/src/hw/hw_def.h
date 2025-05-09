@@ -21,9 +21,19 @@
 		_STEP_MODE_MICRO = 3
 	}StepMode_t;
 
-	#define _USE_STEP_MODE _STEP_MODE_MICRO
+	#define _USE_STEP_MODE _STEP_MODE_HALF
 
 #define _USE_HW_LED				//LED
 #define _USE_HW_TIM				//TIMER
+
+#define _USE_HW_I2C				//I2C
+
+	#define _I2C_MODE_POL	 1	//Polling
+	#define _I2C_MODE_IRQ	 2	//Interrupt
+	#define _I2C_MODE_SOFT	 3		//Soft I2C
+	#define _USE_I2C_MODE _I2C_MODE_SOFT
+	
+#define _USE_HW_COLOR
+#define _USE_HW_SW
 
 #endif /* HW_DEF_H_ */

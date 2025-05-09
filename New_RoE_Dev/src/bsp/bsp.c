@@ -23,6 +23,7 @@ uint32_t millis(void)//using cnt in timer0
 	cli();
 	m = timer0_ovf_cnt;
 	SREG = old_sreg;
+	sei();
 	
 	return m;
 }

@@ -12,8 +12,11 @@
 #include "hw_def.h"
 
 #include "timer.h"
+#include "i2c.h"
 #include "stepper.h"
+#include "color.h"
 #include "led.h"
+#include "switch.h"
 
 void hw_init(void);
 

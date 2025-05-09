@@ -13,8 +13,6 @@
 
 #ifdef _USE_HW_TIM
 
-#include "led.h"
-
 extern volatile uint32_t timer0_ovf_cnt;
 extern volatile uint32_t timer1_ovf_cnt;
 
