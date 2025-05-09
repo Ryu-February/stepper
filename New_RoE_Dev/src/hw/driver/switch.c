@@ -8,6 +8,7 @@
 #include "led.h"
 
 static switch_cb_t _sw_cb = NULL;
+extern volatile uint8_t rgb_set_param;
 
 static const switch_t sw =
 {
@@ -56,11 +57,13 @@ void switch_handler(bool pressed)
 {
 	if(pressed)
 	{
-		led_set_color(RGB_MAGENTA);
+		//led_set_color(RGB_MAGENTA);
+		rgb_set_param = RGB_MAGENTA;
 	}
 	else
 	{
-		led_set_color(RGB_WHITE);
+		//led_set_color(RGB_WHITE);
+		rgb_set_param = RGB_WHITE;
 	}
 }
 
