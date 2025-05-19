@@ -67,6 +67,6 @@ void ap_main(void)
 		uart_send_string_it("device ID: ");
 		uart_dec_to_hexa(reg_value);
 		uart_send_string_it("\r\n");
-		delay_ms(500);
+		delay_ms(10);
 	}
 }

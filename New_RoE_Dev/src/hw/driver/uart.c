@@ -5,7 +5,6 @@
  *  Author: RCY
  */ 
 
-#include "led.h"
 #include "queue.h"
 #include "uart.h"
 
@@ -16,6 +15,29 @@ static circular_queue_t rx_cq;
 static void (*rx_callback)(uint8_t) = 0;
 
 volatile bool rx_event = false;
+
+ISR(USART0_UDRE_vect)
+{
+	uint8_t data_out;
+	if (dequeue(&tx_cq, &data_out))
+	{
+		UDR0 = data_out;
+	}
+	else
+	{
+		/* buffer empty, disable udre interrupt */
+		UCSR0B &= ~(1 << UDRIE0);
+	}
+}
+
+//ISR(USART0_RX_vect)
+//{
+	//uint8_t received_data = UDR0;
+	//
+	//enqueue(&rx_cq, received_data);
+	//rx_event = true;
+//}
+
 
 void uart_init(uint32_t baud) 
 {
@@ -89,58 +111,18 @@ uint8_t uart_receive_byte(void)
 	return data_out;
 }
 
-ISR(USART0_UDRE_vect) 
+static char to_hexa_char(uint8_t nibble)
 {
-	uint8_t data_out;
-	if (dequeue(&tx_cq, &data_out)) 
-	{
-		UDR0 = data_out;
-	} 
-	else 
-	{
-		/* buffer empty, disable udre interrupt */
-		UCSR0B &= ~(1 << UDRIE0);
-	}
+	return (nibble < 10) ? ('0' + nibble) : ('A' + nibble - 10);//10이 넘어가면 A 문자열을 보내야 해서
 }
-
-//ISR(USART0_RX_vect) 
-//{
-	//uint8_t received_data = UDR0;
-	//
-	//enqueue(&rx_cq, received_data);
-	//rx_event = true;
-//}
-
 
 void uart_dec_to_hexa(uint8_t no)
 {
-	uint8_t hexa[2] = {0};
-	uint8_t tempValue_Tens, tempValue_Ones = 0;
+	char high = to_hexa_char(no >> 4);	//상위 4비트
+	char low  = to_hexa_char(no & 0x0F);//하위 4비트
 	
-	tempValue_Tens = no / 16;
-	tempValue_Ones = no % 16;
-	
-	if(tempValue_Tens >= 10)
-	{
-		hexa[0] = tempValue_Tens + 0x37;		//10진수를 대문자로 변환해주려고 0x37을 더함
-	}
-	else if(tempValue_Tens < 10)
-	{
-		hexa[0] = tempValue_Tens + 0x30;		//10진수를 숫자 문자열로 변환
-	}
-	
-	if(tempValue_Ones >= 10)
-	{
-		hexa[1] = tempValue_Ones + 0x37;
-	}
-	else if(tempValue_Ones < 10)
-	{
-		hexa[1] = tempValue_Ones + 0x30;		//10진수를 숫자 문자열로 변환
-	}
-	
-	/*TX_String3("Hexa value : 0x");*/
 	uart_send_string_it("0x");
-	uart_send_byte_it(hexa[0]);
-	uart_send_byte_it(hexa[1]);
+	uart_send_byte_it(high);
+	uart_send_byte_it(low);
 	uart_send_string_it("(Hexa Value)\r\n");
 }
