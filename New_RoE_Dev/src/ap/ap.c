@@ -7,28 +7,23 @@
 
 #include "ap.h"
 
-#define PWM_DUTY_ON		6
-#define PWM_PERIOD		10
+
 
 volatile uint8_t rgb_set_param = RGB_GREEN;
+
+volatile uint8_t reg_value;
+
+extern volatile bool rx_event;
 
 void switch_handler(bool pressed)
 {
 	if(pressed)
 	{
-		uint8_t reg_value = color_read16(TCS34725_DEVICE_ID);
-		if(reg_value == 0x44)
-		{
-			rgb_set_param = RGB_WHITE;
-		}
-		else
-		{
-			rgb_set_param = RGB_RED;	
-		}
+		reg_value = color_read16(TCS34725_ID_REG);
 	}
 	else
 	{
-		rgb_set_param = RGB_MAGENTA;
+		reg_value = 0;
 	}
 }
 
@@ -50,32 +45,28 @@ void ap_main(void)
 {
 	while(1)
 	{
-		//unsigned char pwm_duty = millis() % 10;
-		//
-		//if(pwm_duty < PWM_DUTY_ON)
-		//{
-			//led_set_color(rgb_set_param);	
-		//}
-		//else
-		//{
-			//led_set_color(RGB_OFF);
-			//if(pwm_duty == PWM_PERIOD)
-			//{
-				//pwm_duty = 0;
-			//}
-		//}
-
-		//roe_operate_rogic(LEFT , 10, FORWARD);
-		//roe_operate_rogic(RIGHT, 10, FORWARD);		
-		//ms_operate(LEFT, 30, FORWARD);
-		
 		if(switch_state != SW_EVENT_NONE)
 		{
 			if(_sw_cb)
 				_sw_cb(switch_state == SW_EVENT_PRESSED);	
 		}
 		switch_state = SW_EVENT_NONE;
+
+		
+		if(reg_value == TCS34725_DEVICE_ID)
+		{
+			rgb_set_param = RGB_WHITE;
+		}
+		else
+		{
+			rgb_set_param = RGB_MAGENTA;
+		}
 		
 		led_set_color(rgb_set_param);
+		
+		uart_send_string_it("device ID: ");
+		uart_dec_to_hexa(reg_value);
+		uart_send_string_it("\r\n");
+		delay_ms(500);
 	}
 }

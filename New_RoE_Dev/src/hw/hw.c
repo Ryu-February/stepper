@@ -18,11 +18,13 @@ void hw_init(void)
 	timer1_init();
 	timer2_init();
 	i2c_init();
-	uart_init(115200);
+	
 	
 	led_init();
 	color_init();
 	switch_init();
+	
+	uart_init(BAUD_115200);
 	
 	roe_sm_init();//Ro-E step motor init
 	
