@@ -17,6 +17,7 @@
 #include "color.h"
 #include "led.h"
 #include "switch.h"
+#include "uart.h"
 
 void hw_init(void);
 

@@ -18,6 +18,7 @@ void hw_init(void)
 	timer1_init();
 	timer2_init();
 	i2c_init();
+	uart_init(115200);
 	
 	led_init();
 	color_init();

@@ -34,9 +34,12 @@
 	#define _USE_I2C_MODE _I2C_MODE_SOFT
 	
 #define _USE_HW_COLOR
+
 #define _USE_HW_SW
 	#define _SW_MODE_POL	1
 	#define _SW_MODE_IRQ	2
 	#define _USE_SW_MODE	_SW_MODE_IRQ
+
+#define _USE_HW_UART
 
 #endif /* HW_DEF_H_ */
