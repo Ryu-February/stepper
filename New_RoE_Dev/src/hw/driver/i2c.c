@@ -98,11 +98,13 @@ void soft_i2c_bus2_stop(void)
 	soft_i2c_stop(&BUS2_SDA_DDR, &BUS2_SDA_PORT, &BUS2_SCL_PORT, BUS2_SDA_BIT, BUS2_SCL_BIT);
 }
 
-void soft_i2c_write_byte(volatile uint8_t *SDA_DDR, volatile uint8_t *SDA_PORT, volatile uint8_t *SCL_PORT, volatile uint8_t *SDA_PIN, uint8_t SDA_BIT, uint8_t SCL_BIT, uint8_t data) {
+void soft_i2c_write_byte(volatile uint8_t *SDA_DDR, volatile uint8_t *SDA_PORT, volatile uint8_t *SCL_PORT, volatile uint8_t *SDA_PIN, uint8_t SDA_BIT, uint8_t SCL_BIT, uint8_t data) 
+{
 	for (uint8_t i = 0; i < 8; i++) 
 	{
 		if (data & 0x80) *SDA_PORT |= (1 << SDA_BIT);
 		else             *SDA_PORT &= ~(1 << SDA_BIT);
+		
 		data <<= 1;
 		i2c_delay();
 		*SCL_PORT |= (1 << SCL_BIT);
@@ -130,7 +132,8 @@ void soft_i2c_bus2_write_byte(uint8_t data)
 	BUS2_SDA_BIT, BUS2_SCL_BIT, data);
 }
 
-uint8_t soft_i2c_read_byte(volatile uint8_t *SDA_DDR, volatile uint8_t *SDA_PORT, volatile uint8_t *SCL_PORT, volatile uint8_t *SDA_PIN, uint8_t SDA_BIT, uint8_t SCL_BIT, bool ack) {
+uint8_t soft_i2c_read_byte(volatile uint8_t *SDA_DDR, volatile uint8_t *SDA_PORT, volatile uint8_t *SCL_PORT, volatile uint8_t *SDA_PIN, uint8_t SDA_BIT, uint8_t SCL_BIT, bool ack) 
+{
 	uint8_t data = 0;
 	*SDA_DDR &= ~(1 << SDA_BIT);
 	for (uint8_t i = 0; i < 8; i++) 
@@ -138,13 +141,18 @@ uint8_t soft_i2c_read_byte(volatile uint8_t *SDA_DDR, volatile uint8_t *SDA_PORT
 		data <<= 1;
 		*SCL_PORT |= (1 << SCL_BIT);
 		i2c_delay();
-		if (*SDA_PIN & (1 << SDA_BIT)) data |= 1;
+		if (*SDA_PIN & (1 << SDA_BIT)) 
+		{
+			data |= 1;
+		}
 		*SCL_PORT &= ~(1 << SCL_BIT);
 		i2c_delay();
 	}
 	*SDA_DDR |= (1 << SDA_BIT);
+	
 	if (ack) *SDA_PORT &= ~(1 << SDA_BIT);
 	else     *SDA_PORT |= (1 << SDA_BIT);
+	
 	i2c_delay();
 	*SCL_PORT |= (1 << SCL_BIT);
 	i2c_delay();

@@ -26,6 +26,7 @@ bool uart_tx_buffer_empty(void);
 bool uart_data_available(void);
 uint8_t uart_receive_byte(void);
 void uart_dec_to_hexa(uint8_t no);
+void uart_send_integer(int32_t num);
 
 
 #endif

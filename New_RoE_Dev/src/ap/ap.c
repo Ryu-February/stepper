@@ -11,19 +11,23 @@
 
 volatile uint8_t rgb_set_param = RGB_GREEN;
 
-volatile uint8_t reg_value;
 
 extern volatile bool rx_event;
+
+uint16_t *c, *r, *g, *b;
 
 void switch_handler(bool pressed)
 {
 	if(pressed)
 	{
-		reg_value = color_read16(TCS34725_ID_REG);
+		//color_read_rgbc(c, r, g, b);
+		uart_send_string_it("reading...\r\n");
+		rgb_set_param = RGB_WHITE;
 	}
 	else
 	{
-		reg_value = 0;
+		uart_send_string_it("not reading...\r\n");
+		rgb_set_param = RGB_MAGENTA;
 	}
 }
 
@@ -51,21 +55,21 @@ void ap_main(void)
 				_sw_cb(switch_state == SW_EVENT_PRESSED);	
 		}
 		switch_state = SW_EVENT_NONE;
-
-		
-		if(reg_value == TCS34725_DEVICE_ID)
-		{
-			rgb_set_param = RGB_WHITE;
-		}
-		else
-		{
-			rgb_set_param = RGB_MAGENTA;
-		}
 		
 		led_set_color(rgb_set_param);
 		
-		uart_send_string_it("device ID: ");
-		uart_dec_to_hexa(reg_value);
+		color_read_rgbc(c, r, g, b);
+		
+		
+		uart_send_string_it("color data | ");
+		uart_send_string_it("c : ");
+		uart_send_integer(*c);
+		uart_send_string_it("|| r : ");
+		uart_send_integer(*r);
+		uart_send_string_it("|| g : ");
+		uart_send_integer(*g);
+		uart_send_string_it("|| b : ");
+		uart_send_integer(*b);
 		uart_send_string_it("\r\n");
 		delay_ms(10);
 	}

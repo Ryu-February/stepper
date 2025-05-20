@@ -126,3 +126,38 @@ void uart_dec_to_hexa(uint8_t no)
 	uart_send_byte_it(low);
 	uart_send_string_it("(Hexa Value)\r\n");
 }
+
+void uart_send_integer(int32_t num)
+{	
+	char buf[12];           /* 부호 + 10자리 + 널터미널 */
+	char *p = buf;
+
+	/* 1) 부호 처리 */
+	if (num < 0) 
+	{
+		*p++ = '-';
+		num = -num;
+	}
+
+	/* 2) 숫자 자리 채우기 (역순) */
+	char *start = p;
+	int32_t tmp = num;
+	do {
+		*p++ = '0' + (tmp % 10);
+		tmp /= 10;
+	} while (tmp > 0);
+
+	/* 3) 역순으로 넣었으니 뒤집기 */
+	char *end = p - 1;
+	while (start < end) 
+	{
+		char t = *start;
+		*start++ = *end;
+		*end-- = t;
+	}
+
+	/* 4) 문자열 끝 마무리 및 출력 */
+	*p = '\0';
+	uart_send_string_it(buf);
+	//uart_send_string_it("\r\n");
+}

@@ -14,6 +14,9 @@
 
 #ifdef _USE_HW_LED
 
+#define LED_COLOR_PIN	PB0//for color sensor -> mosfet n channel gate
+#define LED_COLOR_MASK	(1 << LED_COLOR_PIN)
+
 #define LED_RED_PIN		PB1
 #define LED_GREEN_PIN	PB2
 #define LED_BLUE_PIN	PB3
@@ -43,6 +46,7 @@ typedef struct
 	uint8_t red_mask;
 	uint8_t green_mask;
 	uint8_t blue_mask;
+	uint8_t color_mask;
 }rgb_led_t;
 
 //extern rgb_led_t led;

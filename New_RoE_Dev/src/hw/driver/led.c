@@ -13,18 +13,24 @@ static const rgb_led_t led =
 	&DDRB,
 	LED_RED_MASK,
 	LED_GREEN_MASK,
-	LED_BLUE_MASK
+	LED_BLUE_MASK,
+	LED_COLOR_MASK
 };
 
-//RGB_LED
-//R LED -> PB1
-//G LED -> PB2
-//B LED -> PB3
+//RGB_LED		|    COLOR_LED     |
+//R LED -> PB1	| WHITE LED -> PB0 |
+//G LED -> PB2  |				   |
+//B LED -> PB3  |				   |
 
 void led_init(void)
 {
 	*(led.ddr)  |= (led.red_mask) | (led.green_mask) | (led.blue_mask);
-	*(led.port) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);//led->pullup registor
+	*(led.port) |= (led.red_mask) | (led.green_mask) | (led.blue_mask);//led->pullup resistor
+	
+	/*MOSFET N-channel gate is connected to this pin(PORTB0)*/
+	/*This LED is mounted next to the color sensor*/
+	*(led.ddr)	|= (led.color_mask);
+	*(led.port) |= (led.color_mask);
 }
 
 void led_set_color(uint8_t rgb_color)
