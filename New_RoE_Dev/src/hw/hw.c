@@ -23,6 +23,7 @@ void hw_init(void)
 	led_init();
 	color_init();
 	switch_init();
+	buzzer_init();
 	
 	uart_init(BAUD_115200);
 	

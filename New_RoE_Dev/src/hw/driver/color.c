@@ -34,6 +34,12 @@ bool color_init(void)
 	}
 	
 	delay_ms(3);
+	
+	if (!soft_i2c1_write8(TCS34725_ADDR, TCS34725_COMMAND_BIT | TCS34725_CONTROL,
+							TCS34725_CTRL_REG__4X_GAIN))
+	{
+		return false;						
+	}
 
 	// Set integration time
 	return soft_i2c1_write8(TCS34725_ADDR, 

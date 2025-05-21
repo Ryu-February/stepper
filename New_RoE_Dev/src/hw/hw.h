@@ -18,6 +18,7 @@
 #include "led.h"
 #include "switch.h"
 #include "uart.h"
+#include "buzzer.h"
 
 void hw_init(void);
 

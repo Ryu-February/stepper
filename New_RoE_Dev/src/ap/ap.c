@@ -14,14 +14,15 @@ volatile uint8_t rgb_set_param = RGB_GREEN;
 
 extern volatile bool rx_event;
 
+uint16_t c_val, r_val, g_val, b_val;
 uint16_t *c, *r, *g, *b;
 
 void switch_handler(bool pressed)
 {
 	if(pressed)
 	{
-		//color_read_rgbc(c, r, g, b);
 		uart_send_string_it("reading...\r\n");
+		color_read_rgbc(c, r, g, b);
 		rgb_set_param = RGB_WHITE;
 	}
 	else
@@ -29,6 +30,17 @@ void switch_handler(bool pressed)
 		uart_send_string_it("not reading...\r\n");
 		rgb_set_param = RGB_MAGENTA;
 	}
+	
+	uart_send_string_it("color data | ");
+	uart_send_string_it("c : ");
+	uart_send_integer(*c);
+	uart_send_string_it("|| r : ");
+	uart_send_integer(*r);
+	uart_send_string_it("|| g : ");
+	uart_send_integer(*g);
+	uart_send_string_it("|| b : ");
+	uart_send_integer(*b);
+	uart_send_string_it("\r\n");
 }
 
 bool sw_get_event(void)
@@ -42,6 +54,11 @@ bool sw_get_event(void)
 
 void ap_init(void)
 {
+	c = &c_val;
+	r = &r_val;
+	g = &g_val;
+	b = &b_val;
+	
 	switch_attach_callback(switch_handler);
 }
 
@@ -57,20 +74,5 @@ void ap_main(void)
 		switch_state = SW_EVENT_NONE;
 		
 		led_set_color(rgb_set_param);
-		
-		color_read_rgbc(c, r, g, b);
-		
-		
-		uart_send_string_it("color data | ");
-		uart_send_string_it("c : ");
-		uart_send_integer(*c);
-		uart_send_string_it("|| r : ");
-		uart_send_integer(*r);
-		uart_send_string_it("|| g : ");
-		uart_send_integer(*g);
-		uart_send_string_it("|| b : ");
-		uart_send_integer(*b);
-		uart_send_string_it("\r\n");
-		delay_ms(10);
 	}
 }

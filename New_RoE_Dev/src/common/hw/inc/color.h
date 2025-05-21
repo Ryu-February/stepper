@@ -36,6 +36,14 @@
 // Default integration time
 #define TCS34725_INTEGRATIONTIME	0xC0  // 154 ms
 
+typedef enum
+{
+	TCS34725_CTRL_REG__1X_GAIN	  =	0x00,
+	TCS34725_CTRL_REG__4X_GAIN	  =	0x01,
+	TCS34725_CTRL_REG__16X_GAIN	  =	0x02,
+	TCS34725_CTRL_REG__64X_GAIN	  =	0x03
+}tcs34725_ctrl_gain_t;
+
 bool color_init(void);
 bool color_write8(uint8_t reg, uint8_t value);
 uint8_t color_read8(uint8_t reg);
