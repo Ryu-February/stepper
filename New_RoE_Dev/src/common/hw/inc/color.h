@@ -33,8 +33,15 @@
 #define TCS34725_GDATAL				0x18
 #define TCS34725_BDATAL				0x1A
 
-// Default integration time
-#define TCS34725_INTEGRATIONTIME	0xC0  // 154 ms
+// Default integration time | equation(ms) : 256 - (Integration time / 2.4)
+typedef enum
+{
+	TCS34725_INTEGRATIONTIME__2MS	= 0xFF, // 2.4 ms
+	TCS34725_INTEGRATIONTIME__24MS	= 0xF6, // 24  ms
+	TCS34725_INTEGRATIONTIME__101MS = 0xD5, // 101 ms
+	TCS34725_INTEGRATIONTIME__154MS = 0xC0, // 154 ms
+	TCS34725_INTEGRATIONTIME__700MS = 0x00	// 700 ms
+}tcs34725_atime_integ_t;
 
 typedef enum
 {
@@ -44,11 +51,22 @@ typedef enum
 	TCS34725_CTRL_REG__64X_GAIN	  =	0x03
 }tcs34725_ctrl_gain_t;
 
+
+typedef enum
+{
+	COLOR_UNKNOWN = 0,
+	COLOR_RED,
+	COLOR_GREEN,
+	COLOR_BLUE,	
+}color_t;
+
 bool color_init(void);
 bool color_write8(uint8_t reg, uint8_t value);
 uint8_t color_read8(uint8_t reg);
 uint16_t color_read16(uint8_t reg);
 bool color_read_rgbc(uint16_t *c, uint16_t *r, uint16_t *g, uint16_t *b);
+uint16_t color_calc_hue(uint16_t *c, uint16_t *r, uint16_t *g, uint16_t *b);
+color_t color_from_hue(uint16_t hue);
 
 #endif
 

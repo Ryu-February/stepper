@@ -11,6 +11,7 @@
 
 
 #include "hw_def.h"
+#include "pitches.h"
 
 #define BUZ_PIN		PORTD3
 

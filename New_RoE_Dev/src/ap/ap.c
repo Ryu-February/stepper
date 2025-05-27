@@ -11,36 +11,72 @@
 
 volatile uint8_t rgb_set_param = RGB_GREEN;
 
-
-extern volatile bool rx_event;
-
 uint16_t c_val, r_val, g_val, b_val;
 uint16_t *c, *r, *g, *b;
 
+unsigned char uart_update = false;
+uint32_t cur_time = 0;
+
 void switch_handler(bool pressed)
 {
-	if(pressed)
+	if(!pressed)
 	{
-		uart_send_string_it("reading...\r\n");
-		color_read_rgbc(c, r, g, b);
-		rgb_set_param = RGB_WHITE;
+		rgb_set_param = RGB_MAGENTA;
+		return;
+	}
+	
+	uart_send_string_it("switch pressed\r\n");
+	
+	if(!color_read_rgbc(c, r, g, b))
+	{
+		//uart_send_string_it("integration time is not ready...\r\n");
+		return;
+	}
+	
+	//rgb_set_param = RGB_WHITE;
+	
+	uart_send_string_it("reading...\r\n");
+	
+	uart_send_string_it("color data -> ");
+	uart_send_string_it("c : ");
+	uart_send_integer(*c);
+	uart_send_string_it(" || r : ");
+	uart_send_integer(*r);
+	uart_send_string_it(" || g : ");
+	uart_send_integer(*g);
+	uart_send_string_it(" || b : ");
+	uart_send_integer(*b);
+	uart_send_string_it("\r\n");
+	
+	uint16_t hue = color_calc_hue(c, r, g, b);
+	
+	uint8_t what_color = color_from_hue(hue);
+	
+	
+	uart_send_string_it("hue value : ");
+	uart_send_integer(hue);
+	uart_send_string_it("\r\n");
+	
+	if(what_color == COLOR_RED)
+	{
+		rgb_set_param = RGB_RED;
+		uart_send_string_it("current color is red\r\n");
+	}
+	else if(what_color == COLOR_GREEN)
+	{
+		rgb_set_param = RGB_GREEN;
+		uart_send_string_it("current color is green\r\n");
+	}
+	else if(what_color == COLOR_BLUE)
+	{
+		rgb_set_param = RGB_BLUE;
+		uart_send_string_it("current color is blue\r\n");
 	}
 	else
 	{
-		uart_send_string_it("not reading...\r\n");
-		rgb_set_param = RGB_MAGENTA;
+		rgb_set_param = RGB_WHITE;
+		uart_send_string_it("current color is unknown...\r\n");
 	}
-	
-	uart_send_string_it("color data | ");
-	uart_send_string_it("c : ");
-	uart_send_integer(*c);
-	uart_send_string_it("|| r : ");
-	uart_send_integer(*r);
-	uart_send_string_it("|| g : ");
-	uart_send_integer(*g);
-	uart_send_string_it("|| b : ");
-	uart_send_integer(*b);
-	uart_send_string_it("\r\n");
 }
 
 bool sw_get_event(void)
@@ -74,5 +110,6 @@ void ap_main(void)
 		switch_state = SW_EVENT_NONE;
 		
 		led_set_color(rgb_set_param);
+		
 	}
 }
