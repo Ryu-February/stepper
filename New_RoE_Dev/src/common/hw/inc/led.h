@@ -14,6 +14,9 @@
 
 #ifdef _USE_HW_LED
 
+#define _USE_LED_POL	0
+#define _USE_LED_IRQ	1
+
 #define LED_COLOR_PIN	PB0//for color sensor -> mosfet n channel gate
 #define LED_COLOR_MASK	(1 << LED_COLOR_PIN)
 
@@ -29,6 +32,7 @@
 #define RGB_COLOR_GREEN (1 << 1)
 #define RGB_COLOR_BLUE	(1 << 2)
 
+#if _USE_LED_POL
 #define RGB_OFF			0
 #define RGB_RED			(RGB_COLOR_RED)
 #define RGB_GREEN		(RGB_COLOR_GREEN)
@@ -37,6 +41,8 @@
 #define RGB_MAGENTA		(RGB_COLOR_RED | RGB_COLOR_BLUE)
 #define RGB_CYAN		(RGB_COLOR_GREEN | RGB_COLOR_BLUE)
 #define RGB_WHITE		(RGB_COLOR_RED | RGB_COLOR_GREEN | RGB_COLOR_BLUE)
+#endif
+
 
 
 typedef struct 
@@ -48,6 +54,26 @@ typedef struct
 	uint8_t blue_mask;
 	uint8_t color_mask;
 }rgb_led_t;
+
+typedef enum
+{
+	CLR_BLACK = 0,
+	CLR_RED,
+	CLR_ORANGE,
+	CLR_YELLOW,
+	CLR_GREEN,
+	CLR_LIGHT_GREEN,
+	CLR_CYAN,
+	CLR_LIGHT_BLUE,
+	CLR_BLUE,
+	CLR_INDIGO,
+	CLR_VIOLET,
+	CLR_PINK,
+	CLR_WHITE,
+	CLR_COUNT
+}rgb_color_t;
+
+
 
 //extern rgb_led_t led;
 

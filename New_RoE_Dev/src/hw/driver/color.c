@@ -96,10 +96,6 @@ bool color_read_rgbc(uint16_t *c, uint16_t *r, uint16_t *g, uint16_t *b)
 	{
 		return false;
 	}
-	
-	uart_send_string_it("status : ");
-	uart_dec_to_hexa(status);
-	uart_send_string_it("\r\n");
 
     *c = color_read16(TCS34725_CDATAL);
     *r = color_read16(TCS34725_RDATAL);
